@@ -1,11 +1,11 @@
 import express from 'express';
+import casaRoutes from './routes/casaRoutes.js';
 const app = express();
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: '../Front_End' });
-});
 
 
+// Routes
+app.use(casaRoutes);
 export default app;

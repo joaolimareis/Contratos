@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "dependencies": {
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
@@ -8,6 +9,7 @@
     "uuid": "^11.1.1"
   },
   "devDependencies": {
-    "sequelize-auto": "^0.8.8"
+    "sequelize-auto": "^0.8.8",
+    "sequelize-cli": "^6.6.5"
   }
 }
