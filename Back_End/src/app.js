@@ -1,5 +1,5 @@
 import express from 'express';
-import casaRoutes from './routes/casaRoutes.js';
+import casasRoutes from './routes/casasRoutes.js';
 const app = express();
 
 app.use(express.json());
@@ -7,5 +7,5 @@ app.use(express.json());
 
 
 // Routes
-app.use(casaRoutes);
+app.use('/api', casasRoutes);
 export default app;
