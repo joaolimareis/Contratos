@@ -18,14 +18,23 @@ app.use(cors())
 
 
 // Testing POSTGRES COnnection
-app.get("/", async(req, res)=>{
-    console.log("Start")
-    const result = await pool.query("SELECT current_database()")
-    console.log("end")
-    const dbName = result.rows[0]['current_database'];
-    res.send(`The database name is : ${dbName}`);
-
-})
+app.get("/", async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT current_database(), inet_server_port(), setting as data_directory 
+            FROM pg_settings WHERE name = 'data_directory'
+        `);
+        
+        res.json({
+            mensagem: "Conectado com sucesso!",
+            banco: result.rows[0].current_database,
+            porta: result.rows[0].inet_server_port,
+            diretorio_dados: result.rows[0].data_directory
+        });
+    } catch (err) {
+        res.status(500).json({ erro: err.message });
+    }
+});
 
 
 // Server runnign
