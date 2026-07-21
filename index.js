@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv"
 import pool from "./src/config/db.js"
+import usuariosRoutes from "./src/routes/usuariosRoutes.js"
+import errorHandling from "./src/middlewares/errorHandler.js";
 dotenv.config();
 
 const app = express();
@@ -11,11 +13,10 @@ const port = process.env.PORT || 3001;
 //Middlewares
 app.use(express.json())
 app.use(cors())
-
 // Routes
-
+app.use("/api", usuariosRoutes)
 // Error handling middeleware
-
+app.use(errorHandling)
 
 // Testing POSTGRES COnnection
 app.get("/", async (req, res) => {
