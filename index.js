@@ -4,6 +4,7 @@ import dotenv from "dotenv"
 import pool from "./src/config/db.js"
 import usuariosRoutes from "./src/routes/usuariosRoutes.js"
 import errorHandling from "./src/middlewares/errorHandler.js";
+import createUsuariosTable from "./src/data/createUsuariosTable.js";
 dotenv.config();
 
 const app = express();
@@ -17,7 +18,8 @@ app.use(cors())
 app.use("/api", usuariosRoutes)
 // Error handling middeleware
 app.use(errorHandling)
-
+// Create table before stating server
+createUsuariosTable()
 // Testing POSTGRES COnnection
 app.get("/", async (req, res) => {
     try {
