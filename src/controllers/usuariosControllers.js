@@ -1,17 +1,12 @@
 import { createUsuariosService, getAllUsuariosService, getUsusariosByIdService,updateUsuariosService, deleteUsuariosService} from "../models/usuariosModel.js";
 
-const handleResponse = (res, status, message, data = nuul) => {
-  res.status(status).json({
-    status,
-    message,
-    data,
-  })
-}
+import handleResponse from "../middlewares/handleError.js";
 
 export const createUsuarios = async (req, res, next) => {
-  const {email, senha, status} = req.body; // Destrutincg
   try{
-    const newUsuarios = await createUsuariosService(email, senha, status);
+    const {email, senha} = req.body; 
+
+    const newUsuarios = await createUsuariosService(email, senha);
     handleResponse(res, 201, "Usuario cretaed success", newUsuarios)
 
   }catch(err){

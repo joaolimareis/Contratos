@@ -11,8 +11,8 @@ export const getUsusariosByIdService = async (id) => {
   return result.rows[0]
 }
 
-export const createUsuariosService = async (email, senha, status) => {
-  const reuslt = await pool.query("INSERT INTO usuarios (email, senha, status) VALUES ($1, $2, $3) RETURNING *", [email, senha, status]) 
+export const createUsuariosService = async (email, senha) => {
+  const reuslt = await pool.query("INSERT INTO usuarios (email, senha) VALUES ($1, $2) RETURNING *", [email, senha]) 
 
   return reuslt.rows[0] 
 

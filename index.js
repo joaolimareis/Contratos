@@ -5,6 +5,7 @@ import pool from "./src/config/db.js"
 import usuariosRoutes from "./src/routes/usuariosRoutes.js"
 import errorHandling from "./src/middlewares/errorHandler.js";
 import createUsuariosTable from "./src/data/createUsuariosTable.js";
+import locatariosRoutes from "./src/routes/locatariosRotues.js"
 dotenv.config();
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.json())
 app.use(cors())
 // Routes
 app.use("/api", usuariosRoutes)
+app.use("/api", locatariosRoutes)
 // Error handling middeleware
 app.use(errorHandling)
 // Create table before stating server
