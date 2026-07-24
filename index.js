@@ -6,6 +6,10 @@ import usuariosRoutes from "./src/routes/usuariosRoutes.js"
 import errorHandling from "./src/middlewares/errorHandler.js";
 import createUsuariosTable from "./src/data/createUsuariosTable.js";
 import locatariosRoutes from "./src/routes/locatariosRotues.js"
+import locadorRoutes from "./src/routes/locadorRoutes.js"
+import imoveisRoutes from "./src/routes/imoveisRoutes.js"
+import contratosRoutes from "./src/routes/contratosRoutes.js"
+import recebimentosRoutes from "./src/routes/recebimentosRoutes.js"
 dotenv.config();
 
 const app = express();
@@ -18,6 +22,12 @@ app.use(cors())
 // Routes
 app.use("/api", usuariosRoutes)
 app.use("/api", locatariosRoutes)
+app.use("/api", locadorRoutes)
+app.use("/api", imoveisRoutes)
+app.use("/api", contratosRoutes)
+app.use("/api", recebimentosRoutes)
+
+
 // Error handling middeleware
 app.use(errorHandling)
 // Create table before stating server
