@@ -48,7 +48,6 @@ router.get("/usuarios", getAllUsuarios);
  *             required:
  *               - nome
  *               - email
- *               - senha
  *             properties:
  *               nome:
  *                 type: string
@@ -56,9 +55,6 @@ router.get("/usuarios", getAllUsuarios);
  *               email:
  *                 type: string
  *                 example: joao@email.com
- *               senha:
- *                 type: string
- *                 example: 123456
  *     responses:
  *       201:
  *         description: Usuario created successfully
