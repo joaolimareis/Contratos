@@ -1,14 +1,119 @@
 import express from "express";
-import {createUsuarios,getAllUsuarios, getUsuariosById, updateUsuarios, deleteUsuarios} from "../controllers/usuariosControllers.js"
+import {
+  createUsuarios,
+  getAllUsuarios,
+  getUsuariosById,
+  updateUsuarios,
+  deleteUsuarios
+} from "../controllers/usuariosControllers.js";
 import validateUsuarios from "../middlewares/usuarioValidador.js";
+
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Usuarios
+ *   description: Usuarios management API
+ */
 
-router.post("/usuarios",validateUsuarios, createUsuarios);
-router.get("/usuarios", getAllUsuarios)
-router.get("/usuarios/:id", getUsuariosById)
-router.put("/usuarios/:id", validateUsuarios, updateUsuarios)
-router.delete("/usuarios/:id", deleteUsuarios)
+/**
+ * @swagger
+ * /api/usuarios:
+ *   get:
+ *     summary: Retrieve all usuarios
+ *     tags: [Usuarios]
+ *     responses:
+ *       200:
+ *         description: List of all usuarios
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ */
+router.get("/usuarios", getAllUsuarios);
 
+/**
+ * @swagger
+ * /api/usuarios:
+ *   post:
+ *     summary: Create a new usuario
+ *     tags: [Usuarios]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       201:
+ *         description: Usuario created successfully
+ */
+router.post("/usuarios", validateUsuarios, createUsuarios);
 
-export default router
+/**
+ * @swagger
+ * /api/usuarios/{id}:
+ *   get:
+ *     summary: Get a usuario by ID
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The usuario ID
+ *     responses:
+ *       200:
+ *         description: Usuario data found
+ *       404:
+ *         description: Usuario not found
+ */
+router.get("/usuarios/:id", getUsuariosById);
+
+/**
+ * @swagger
+ * /api/usuarios/{id}:
+ *   put:
+ *     summary: Update a usuario by ID
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The usuario ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Usuario updated successfully
+ */
+router.put("/usuarios/:id", validateUsuarios, updateUsuarios);
+
+/**
+ * @swagger
+ * /api/usuarios/{id}:
+ *   delete:
+ *     summary: Delete a usuario by ID
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The usuario ID
+ *     responses:
+ *       200:
+ *         description: Usuario deleted successfully
+ */
+router.delete("/usuarios/:id", deleteUsuarios);
+
+export default router;

@@ -29,5 +29,10 @@ export const deleteUsuariosModel = async (id) => {
   return result.rows[0]
 
 }
-export default {createUsuariosModel, getAllUsuariosModel, getUsusariosByIdModel,updateUsuariosModel, deleteUsuariosModel}
+
+export const loginUsuarioModel = async (email) =>{
+  const result = await pool.query("SELECT * FROM usuarios WHERE email=$1", [email])
+  return result.rows[0]
+}
+export default {createUsuariosModel, getAllUsuariosModel, getUsusariosByIdModel,updateUsuariosModel, deleteUsuariosModel, loginUsuarioModel}
 

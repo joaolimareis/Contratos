@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
-import { createUsuariosModel, getUsusariosByIdModel } from "../models/usuariosModel.js";
+import { createUsuariosModel, getUsusariosByIdModel, loginUsuarioModel } from "../models/usuariosModel.js";
 import jwt from "jsonwebtoken";
-
+import { getAllUsuarios } from "../controllers/usuariosControllers.js";
 
 export const createUsuariosService = async (email, senha) => {
 
@@ -9,8 +9,7 @@ export const createUsuariosService = async (email, senha) => {
     throw new Error("Email e a senha sao obrigatorios");
   }
 
-
-  const usuarioExistente = await getUsusariosByIdModel(email);
+  const usuarioExistente = await loginUsuarioModel(email);
 
 
   if (usuarioExistente) {
@@ -25,8 +24,6 @@ export const createUsuariosService = async (email, senha) => {
     email,
     senhaHash
   );
-
-
   return usuario;
 
 };
@@ -36,9 +33,9 @@ export const createUsuariosService = async (email, senha) => {
 export const loginService = async (email, senha) => {
 
 
-  const usuario = await getUsusariosByIdModel(email);
+  const usuario = await loginUsuarioModel(email);
 
-
+  console.log(usuario)
   if (!usuario) {
     throw new Error("Usuario nao encontrado");
   }
@@ -78,7 +75,7 @@ export const loginService = async (email, senha) => {
       email:usuario.email
     },
 
-    token
+    // token
 
   };
 
