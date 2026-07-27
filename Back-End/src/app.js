@@ -24,16 +24,16 @@ const swaggerOptions = {
     info: {
       title: 'Api Contratos v1',
       version: '1.0.0',
-      description: 'A api for my project in node js, for Contratos maneger'
+      description: 'A api for my project in node js, for Contratos manager'
     },
     servers: [
       {
-        url: process.env.API_URL || `http://localhost:${port}`
-
+        url: process.env.API_URL || `http://localhost:${port}`,
+        description: "Servidor da API"
       },
     ],
   },
-  apis: ['./app.js', './src/routes/*.js']
+  apis: ['./src/routes/*.js']
 };
 
 const swaggersDocs = swaggerJSDoc(swaggerOptions);
@@ -41,18 +41,7 @@ const swaggersDocs = swaggerJSDoc(swaggerOptions);
 app.use(
   "/api-docs",
   swaggerUi.serve,
-  (req, res, next) => {
-    const swaggerDocument = {
-      ...swaggersDocs,
-      servers: [
-        {
-          url: `${req.protocol}://${req.get("host")}`,
-        },
-      ],
-    };
-
-    swaggerUi.setup(swaggerDocument)(req, res, next);
-  }
+  swaggerUi.setup(swaggersDocs)
 );
 //Middlewares
 app.use(express.json())
