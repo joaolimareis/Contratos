@@ -38,7 +38,22 @@ const swaggerOptions = {
 
 const swaggersDocs = swaggerJSDoc(swaggerOptions);
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggersDocs))
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  (req, res, next) => {
+    const swaggerDocument = {
+      ...swaggersDocs,
+      servers: [
+        {
+          url: `${req.protocol}://${req.get("host")}`,
+        },
+      ],
+    };
+
+    swaggerUi.setup(swaggerDocument)(req, res, next);
+  }
+);
 //Middlewares
 app.use(express.json())
 app.use(cors())
