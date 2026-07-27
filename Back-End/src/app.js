@@ -38,10 +38,14 @@ const swaggerOptions = {
 const swaggersDocs = swaggerJSDoc(swaggerOptions);
 
 app.use(
-  "/",
+  "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(swaggersDocs)
 );
+app.get("/", (req, res) => {
+  res.redirect("/api-docs/");
+});
+
 //Middlewares
 app.use(express.json())
 app.use(cors())
