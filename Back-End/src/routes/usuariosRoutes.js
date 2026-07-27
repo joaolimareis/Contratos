@@ -45,9 +45,25 @@ router.get("/usuarios", getAllUsuarios);
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - nome
+ *               - email
+ *               - senha
+ *             properties:
+ *               nome:
+ *                 type: string
+ *                 example: João Silva
+ *               email:
+ *                 type: string
+ *                 example: joao@email.com
+ *               senha:
+ *                 type: string
+ *                 example: 123456
  *     responses:
  *       201:
  *         description: Usuario created successfully
+ *       400:
+ *         description: Validation error
  */
 router.post("/usuarios", validateUsuarios, createUsuarios);
 
