@@ -14,7 +14,7 @@ import recebimentosRoutes from "./routes/recebimentosRoutes.js"
 import loginRoutes from "./routes/loginRoutes.js"
 
 dotenv.config();
-
+console.log("API_URL:", process.env.API_URL);
 const app = express();
 const port = process.env.PORT || 3001;
 
