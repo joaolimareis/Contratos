@@ -34,5 +34,48 @@ export const loginUsuarioModel = async (email) =>{
   const result = await pool.query("SELECT * FROM usuarios WHERE email=$1", [email])
   return result.rows[0]
 }
+
+export const updateParcialModel = async (id, dados) => {
+
+  const campos = []
+  const valores = []
+
+  if(dados.email !== undefined){
+    campos.push(`email = $${valores.length + 1}`)
+    valores.push(dados.email)
+  }
+    if(dados.senha !== undefined){
+    campos.push(`senha = $${valores.length + 1}`)
+    valores.push(dados.senha)
+  }
+    if(dados.status !== undefined){
+    campos.push(`status = $${valores.length + 1}`)
+    valores.push(dados.status)
+  }
+
+  if (campos.length === 0){
+    return null
+  }
+
+  valores.push(id)
+
+  const query = `
+  UPDATE usuarios
+  SET ${campos.join(", ")}
+  WHERE id = $${valores.length}
+  RETURNING *
+  `
+  
+  const result = await pool.query(query, valores)
+
+  console.log(query);
+console.log(valores);
+console.log(result.rows);
+  return result.rows[0]
+  
+
+}
+
+
 export default {createUsuariosModel, getAllUsuariosModel, getUsusariosByIdModel,updateUsuariosModel, deleteUsuariosModel, loginUsuarioModel}
 

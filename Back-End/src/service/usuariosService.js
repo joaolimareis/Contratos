@@ -28,10 +28,7 @@ export const createUsuariosService = async (email, senha) => {
 
 };
 
-
-
 export const loginService = async (email, senha) => {
-
 
   const usuario = await loginUsuarioModel(email);
 

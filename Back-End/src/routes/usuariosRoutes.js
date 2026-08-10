@@ -4,12 +4,16 @@ import {
   getAllUsuarios,
   getUsuariosById,
   updateUsuarios,
-  deleteUsuarios
+  deleteUsuarios,
+  updateUsuariosParcial
 } from "../controllers/usuariosControllers.js";
 import validateUsuarios from "../middlewares/usuarioValidador.js";
+import authMiddleware from "../middlewares/authMiddleware.js"
 
 const router = express.Router();
 
+
+router.use(authMiddleware);
 /**
  * @swagger
  * tags:
@@ -127,5 +131,7 @@ router.put("/usuarios/:id", validateUsuarios, updateUsuarios);
  *         description: Usuario deleted successfully
  */
 router.delete("/usuarios/:id", deleteUsuarios);
+
+router.patch("/usuarios/:id",updateUsuariosParcial)
 
 export default router;

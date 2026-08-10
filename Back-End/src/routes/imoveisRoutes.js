@@ -1,7 +1,10 @@
 import express from "express"
 import { getAllImovel, createImovel,updateImovel,getAllImovelById,deleteImovel } from "../controllers/imovelControllers.js";
 import valiadeImoveis from "../middlewares/imoveisValidador.js";
+import authMiddleware from "../middlewares/authMiddleware.js"
+
 const router = express.Router();
+router.use(authMiddleware);
 
 
 /**

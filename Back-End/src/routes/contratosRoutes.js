@@ -7,8 +7,10 @@ import {
   deleteContrato
 } from "../controllers/contratosControllers.js";
 import validateContratos from "../middlewares/contratosValidador.js"
+import authMiddleware from "../middlewares/authMiddleware.js"
 
 const router = express.Router();
+router.use(authMiddleware);
 
 /**
  * @swagger

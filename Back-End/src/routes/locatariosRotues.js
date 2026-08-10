@@ -7,8 +7,10 @@ import {
   deleteLocatarios
 } from "../controllers/locatariosControllers.js";
 import validateLocatario from "../middlewares/locatariosValidador.js";
+import authMiddleware from "../middlewares/authMiddleware.js"
 
 const router = express.Router();
+router.use(authMiddleware);
 
 /**
  * @swagger

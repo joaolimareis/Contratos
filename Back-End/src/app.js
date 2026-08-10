@@ -14,7 +14,6 @@ import recebimentosRoutes from "./routes/recebimentosRoutes.js"
 import loginRoutes from "./routes/loginRoutes.js"
 
 dotenv.config();
-console.log("API_URL:", process.env.API_URL);
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -49,6 +48,10 @@ app.get("/", (req, res) => {
 //Middlewares
 app.use(express.json())
 app.use(cors())
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.originalUrl}`);
+  next();
+});
 // Routes
 app.use("/api", usuariosRoutes)
 app.use("/api", locatariosRoutes)
