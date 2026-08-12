@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/server.js",
-     "start": "node src/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server.js",
+    "test": "vitest"
   },
   "repository": {
     "type": "git",
@@ -29,12 +29,16 @@
     "jsonwebtoken": "^9.0.3",
     "node-gyp": "^13.0.1",
     "pg": "^8.22.0",
+    "pg-hstore": "^2.3.4",
     "rebuild": "^0.1.2",
+    "sequelize": "^6.37.8",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "sequelize-auto": "^0.8.8",
+    "vitest": "^4.1.10"
   }
 }

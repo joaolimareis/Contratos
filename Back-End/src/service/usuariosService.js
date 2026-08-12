@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import { createUsuariosModel, getUsusariosByIdModel, loginUsuarioModel } from "../models/usuariosModel.js";
 import jwt from "jsonwebtoken";
-import { getAllUsuarios } from "../controllers/usuariosControllers.js";
-
+import { getAllUsuariosController } from "../controllers/usuariosControllers.js";
+import { Usuarios } from "../models/index.js";
 export const createUsuariosService = async (email, senha) => {
 
   if (!email || !senha) {
@@ -27,6 +27,10 @@ export const createUsuariosService = async (email, senha) => {
   return usuario;
 
 };
+
+export const getAllUsuariosService = async () =>{
+  return await Usuarios.findAll()
+}
 
 export const loginService = async (email, senha) => {
 
@@ -80,6 +84,7 @@ export const loginService = async (email, senha) => {
 
 
 export default {
+  getAllUsuariosService,
   createUsuariosService,
   loginService
 };

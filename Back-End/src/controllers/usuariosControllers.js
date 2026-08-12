@@ -1,5 +1,5 @@
-import { getAllUsuariosModel, getUsusariosByIdModel,updateUsuariosModel, deleteUsuariosModel, updateParcialModel} from "../models/usuariosModel.js";
-
+import { getUsusariosByIdModel,updateUsuariosModel, deleteUsuariosModel, updateParcialModel} from "../models/usuariosModel.js";
+import { getAllUsuariosService } from "../service/usuariosService.js"
 import handleResponse from "../utils/handleError.js";
 import { createUsuariosService } from "../service/usuariosService.js"
 
@@ -20,17 +20,18 @@ export const createUsuarios = async (req, res, next) => {
   }
 
 }
-export const getAllUsuarios = async (req, res, next) => {
+export const getAllUsuariosController = async (req, res, next) =>{
   try{
-    const usuarios = await getAllUsuariosModel();
-    handleResponse(res, 200, "Usuario fetched success", usuarios)
-
-  }catch(err){
-    next(err);
-
+    const usuarios = await getAllUsuariosService()
+    return res.status(200).json({
+      status: 200,
+      message: "Usuarios encontrados com sucesso",
+      data: usuarios
+    })
+  }catch(error){
+    next(error)
   }
-}
-
+};
 export const getUsuariosById = async (req, res, next) => {
   try{
     const usuarios = await getUsusariosByIdModel(req.params.id);
@@ -87,7 +88,7 @@ console.log(req.params);
 
 export default {  
   createUsuarios,
-  getAllUsuarios,
+  getAllUsuariosController,
   getUsuariosById,
   updateUsuarios,
   deleteUsuarios,

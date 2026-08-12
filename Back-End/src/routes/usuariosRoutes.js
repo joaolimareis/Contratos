@@ -1,19 +1,17 @@
 import express from "express";
 import {
   createUsuarios,
-  getAllUsuarios,
+  getAllUsuariosController,
   getUsuariosById,
   updateUsuarios,
   deleteUsuarios,
   updateUsuariosParcial
 } from "../controllers/usuariosControllers.js";
 import validateUsuarios from "../middlewares/usuarioValidador.js";
-import authMiddleware from "../middlewares/authMiddleware.js"
 
 const router = express.Router();
 
 
-router.use(authMiddleware);
 /**
  * @swagger
  * tags:
@@ -35,7 +33,7 @@ router.use(authMiddleware);
  *             schema:
  *               type: array
  */
-router.get("/usuarios", getAllUsuarios);
+router.get("/usuarios", getAllUsuariosController);
 
 /**
  * @swagger
