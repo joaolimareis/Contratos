@@ -1,18 +1,35 @@
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { getUsusariosByIdModel,updateUsuariosModel, deleteUsuariosModel, updateParcialModel} from "../models/usuariosModel.js";
-import { getAllUsuariosService } from "../service/usuariosService.js"
+import { getAllUsuariosService,createUsuariosService, getUsuariosByIdService, getEmailsUsuariosService} from "../service/usuariosService.js"
+import loginService from "../service/loginService.js"
 import handleResponse from "../utils/handleError.js";
-import { createUsuariosService } from "../service/usuariosService.js"
 
 
 
-export const createUsuarios = async (req, res, next) => {
-  
-  
+
+export const createUsuariosController = async (req, res, next) => {
+
+ 
   try{
-    const {email, senha} = req.body; 
 
-    const newUsuarios = await createUsuariosService(email, senha);
-    handleResponse(res, 201, "Usuario cretaed success", newUsuarios)
+    const {email, senha} = req.body
+
+     if (!email || !senha) {
+    throw new Error("Email e a senha sao obrigatorios");
+  }
+
+    const usuarioExistente = await getEmailsUsuariosService(email);
+
+  if (usuarioExistente) {
+    throw new Error("Este email ja esta sendo usado");
+  }
+
+  const senhaHash = await bcrypt.hash(senha, 10)
+
+    const newUsuarios = await createUsuariosService(email, senhaHash);
+    
+    return handleResponse(res, 201, "Usuario cretaed success", newUsuarios)
 
   }catch(err){
     next(err);
@@ -32,9 +49,9 @@ export const getAllUsuariosController = async (req, res, next) =>{
     next(error)
   }
 };
-export const getUsuariosById = async (req, res, next) => {
+export const getUsuariosByIdController = async (req, res, next) => {
   try{
-    const usuarios = await getUsusariosByIdModel(req.params.id);
+    const usuarios = await getUsuariosByIdService()
     if(!usuarios) return handleResponse(res, 404, "Usuarios not found")
     handleResponse(res, 200, "Usuario fetched success", usuarios)
 
@@ -43,6 +60,28 @@ export const getUsuariosById = async (req, res, next) => {
 
   }
 }
+
+export const loginController = async (req, res, next) => {
+  try {
+    const { email, senha } = req.body;
+
+    if (!email || !senha) {
+      throw new Error("Email e senha são obrigatórios");
+    }
+
+    const resultado = await loginService(email, senha);
+
+    return handleResponse(
+      res,
+      200,
+      "Login realizado com sucesso",
+      resultado
+    );
+
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const updateUsuarios = async (req, res, next) => {
   const {email, senha, status} = req.body; // Destrutincg
@@ -87,9 +126,9 @@ console.log(req.params);
 }
 
 export default {  
-  createUsuarios,
+  createUsuariosController,
   getAllUsuariosController,
-  getUsuariosById,
+  getUsuariosByIdController,
   updateUsuarios,
   deleteUsuarios,
   updateUsuariosParcial

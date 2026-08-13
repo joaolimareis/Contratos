@@ -1,8 +1,8 @@
 import express from "express";
 import {
-  createUsuarios,
+  createUsuariosController,
   getAllUsuariosController,
-  getUsuariosById,
+  getUsuariosByIdController,
   updateUsuarios,
   deleteUsuarios,
   updateUsuariosParcial
@@ -50,20 +50,20 @@ router.get("/usuarios", getAllUsuariosController);
  *             required:
  *               - nome
  *               - email
- *             properties:
- *               nome:
- *                 type: string
- *                 example: João Silva
- *               email:
- *                 type: string
- *                 example: joao@email.com
+ *             
+ *               
+ *                
+ *                
+ *               
+ *                
+ *                 
  *     responses:
  *       201:
  *         description: Usuario created successfully
  *       400:
  *         description: Validation error
  */
-router.post("/usuarios", validateUsuarios, createUsuarios);
+router.post("/usuarios", validateUsuarios, createUsuariosController);
 
 /**
  * @swagger
@@ -84,7 +84,7 @@ router.post("/usuarios", validateUsuarios, createUsuarios);
  *       404:
  *         description: Usuario not found
  */
-router.get("/usuarios/:id", getUsuariosById);
+router.get("/usuarios/:id", getUsuariosByIdController);
 
 /**
  * @swagger
