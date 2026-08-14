@@ -74,7 +74,15 @@ export const updateUsuariosService = async (
 
   return usuarioAtualizado;
 };
+export const deleteUsuariosServices = async(id) => {
+  const deleteIdUser = await Usuarios.destroy( {
+    where:{
+      id
+    }
+  })
+  return deleteIdUser
 
+}
 
 
 
@@ -83,5 +91,6 @@ export default {
   getUsuariosByIdService,
   createUsuariosService,
   getEmailsUsuariosService,
-  updateUsuariosService
+  updateUsuariosService,
+  deleteUsuariosServices
 };

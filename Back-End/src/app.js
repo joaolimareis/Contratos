@@ -16,7 +16,7 @@ import loginRoutes from "./routes/loginRoutes.js"
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
-
+console.log("🔥 APP NOVA VERSAO CARREGADA");
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',

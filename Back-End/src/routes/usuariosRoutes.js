@@ -4,8 +4,8 @@ import {
   getAllUsuariosController,
   getUsuariosByIdController,
   updateUsuariosController,
-  deleteUsuarios,
-  updateUsuariosParcial
+  deleteUsuariosController,
+  // updateUsuariosParcial
 } from "../controllers/usuariosControllers.js";
 import validateUsuarios from "../middlewares/usuarioValidador.js";
 
@@ -128,8 +128,8 @@ router.put("/usuarios/:id", updateUsuariosController);
  *       200:
  *         description: Usuario deleted successfully
  */
-router.delete("/usuarios/:id", deleteUsuarios);
+router.delete("/usuarios/:id", deleteUsuariosController);
 
-router.patch("/usuarios/:id",updateUsuariosParcial)
+// router.patch("/usuarios/:id",updateUsuariosParcial)
 
 export default router;

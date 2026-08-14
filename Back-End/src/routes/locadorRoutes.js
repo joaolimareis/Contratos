@@ -1,14 +1,13 @@
 import express from "express";
-import { createLocador,
-  getAllLocador,
-  getLocadorById,
-  updateLocador,
-  deleteLocador} from  "../controllers/locadorControllers.js"
+import {   createLocadorController,
+  getAllLocadorController,
+  getLocadorByIdController,
+  updateLocadorController,
+  deleteLocadorController} from  "../controllers/locadorControllers.js"
 import validatelocador from "../middlewares/locadorValidador.js";
-import authMiddleware from "../middlewares/authMiddleware.js"
 
 const router = express.Router();
-router.use(authMiddleware);
+// router.use(authMiddleware);
 
 /**
  * @swagger
@@ -31,9 +30,7 @@ router.use(authMiddleware);
  *             schema:
  *               type: array
  */
-
-router.get("/locador", getAllLocador)
-
+router.get("/locador",  getAllLocadorController);
 /**
  * @swagger
  * /api/locador:
@@ -52,7 +49,7 @@ router.get("/locador", getAllLocador)
  *       201:
  *         description: Contract created successfully
  */
-router.post("/locador",  validatelocador,createLocador)
+router.post("/locador",createLocadorController)
 /**
  * @swagger
  * /api/locador/{id}:
@@ -73,7 +70,7 @@ router.post("/locador",  validatelocador,createLocador)
  *         description: Contract not found
  */
 
-router.get("/locador/:id", getLocadorById)
+router.get("/locador/:id", getLocadorByIdController)
 /**
  * @swagger
  * /api/locador/{id}:
@@ -97,7 +94,7 @@ router.get("/locador/:id", getLocadorById)
  *       200:
  *         description: Contract updated successfully
  */
-router.put("/locador/:id",  updateLocador)
+router.put("/locador/:id",  updateLocadorController)
 /**
  * @swagger
  * /api/locador/{id}:
@@ -115,6 +112,6 @@ router.put("/locador/:id",  updateLocador)
  *       200:
  *         description: Contract deleted successfully
  */
-router.delete("/locador/:id", deleteLocador)
+router.delete("/locador/:id", deleteLocadorController)
 
 export default router

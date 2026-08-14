@@ -1,10 +1,17 @@
-import express from "express"
-import { getAllImovel, createImovel,updateImovel,getAllImovelById,deleteImovel } from "../controllers/imovelControllers.js";
-import valiadeImoveis from "../middlewares/imoveisValidador.js";
-import authMiddleware from "../middlewares/authMiddleware.js"
+import express from "express";
+
+import {
+  getAllImovelController,
+  createImovelController,
+  updateImovelController,
+  getImovelByIdController,
+  deleteImovelController
+} from "../controllers/imovelControllers.js";
+
+import validateImoveis from "../middlewares/imoveisValidador.js";
+
 
 const router = express.Router();
-router.use(authMiddleware);
 
 
 /**
@@ -13,6 +20,8 @@ router.use(authMiddleware);
  *   name: Imoveis
  *   description: Imoveis management API
  */
+
+
 /**
  * @swagger
  * /api/imoveis:
@@ -21,14 +30,14 @@ router.use(authMiddleware);
  *     tags: [Imoveis]
  *     responses:
  *       200:
- *         description: List of all Imoveis
- *         content:
- *           application/json:
- *             schema:
- *               type: array
+ *         description: List of all imoveis
  */
+router.get(
+  "/imoveis",
+  getAllImovelController
+);
 
-router.get("/imoveis",getAllImovel)
+
 /**
  * @swagger
  * /api/imoveis:
@@ -41,13 +50,16 @@ router.get("/imoveis",getAllImovel)
  *         application/json:
  *           schema:
  *             type: object
- *             properties:
- *               // Add your contract properties here matching your validator/database schema
  *     responses:
  *       201:
- *         description: Imoveis created successfully
+ *         description: Imovel created successfully
  */
-router.post("/imoveis",valiadeImoveis ,createImovel)
+router.post(
+  "/imoveis",
+  validateImoveis,
+  createImovelController
+);
+
 
 /**
  * @swagger
@@ -61,14 +73,18 @@ router.post("/imoveis",valiadeImoveis ,createImovel)
  *         required: true
  *         schema:
  *           type: integer
- *         description: The Imoveis ID
  *     responses:
  *       200:
  *         description: Imovel data found
  *       404:
  *         description: Imovel not found
  */
-router.get("/imoveis/:id",getAllImovelById)
+router.get(
+  "/imoveis/:id",
+  getImovelByIdController
+);
+
+
 /**
  * @swagger
  * /api/imoveis/{id}:
@@ -81,7 +97,6 @@ router.get("/imoveis/:id",getAllImovelById)
  *         required: true
  *         schema:
  *           type: integer
- *         description: The imovel ID
  *     requestBody:
  *       required: true
  *       content:
@@ -91,13 +106,20 @@ router.get("/imoveis/:id",getAllImovelById)
  *     responses:
  *       200:
  *         description: Imovel updated successfully
+ *       404:
+ *         description: Imovel not found
  */
-router.put("/imoveis/:id",updateImovel)
+router.put(
+  "/imoveis/:id",
+  updateImovelController
+);
+
+
 /**
  * @swagger
  * /api/imoveis/{id}:
  *   delete:
- *     summary: Delete a Imovel by ID
+ *     summary: Delete a imovel by ID
  *     tags: [Imoveis]
  *     parameters:
  *       - in: path
@@ -105,11 +127,16 @@ router.put("/imoveis/:id",updateImovel)
  *         required: true
  *         schema:
  *           type: integer
- *         description: The imovel ID
  *     responses:
  *       200:
  *         description: Imovel deleted successfully
+ *       404:
+ *         description: Imovel not found
  */
-router.delete("/imoveis/:id",deleteImovel)
+router.delete(
+  "/imoveis/:id",
+  deleteImovelController
+);
 
-export default router
+
+export default router;

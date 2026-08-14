@@ -50,6 +50,9 @@ export default class Locador extends Model {
     tableName: 'locador',
     schema: 'public',
     timestamps: true,
+
+        createdAt: "created_at",
+        updatedAt: false,
     indexes: [
       {
         name: "locador_cpf_locador_key",
@@ -75,4 +78,12 @@ export default class Locador extends Model {
     ]
   });
   }
+  static associate(models) {
+
+  Locador.hasMany(models.Imoveis, {
+    foreignKey: "locador_id",
+    as: "imoveis"
+  });
+
+}
 }

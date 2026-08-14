@@ -55,6 +55,8 @@ export default class Locatarios extends Model {
     tableName: 'locatarios',
     schema: 'public',
     timestamps: false,
+    createdAt: "created_at",
+    updatedAt: false,
     indexes: [
       {
         name: "locatarios_cpf_locatario_key",
@@ -80,4 +82,12 @@ export default class Locatarios extends Model {
     ]
   });
   }
+  static associate(models) {
+
+  Locatarios.hasMany(models.Contratos, {
+    foreignKey: "locatario_id",
+    as: "contratos"
+  });
+
+}
 }
