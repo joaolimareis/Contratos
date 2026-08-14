@@ -11,7 +11,7 @@ import locadorRoutes from "./routes/locadorRoutes.js"
 import imoveisRoutes from "./routes/imoveisRoutes.js"
 import contratosRoutes from "./routes/contratosRoutes.js"
 import recebimentosRoutes from "./routes/recebimentosRoutes.js"
-//import loginRoutes from "./routes/loginRoutes.js"
+import loginRoutes from "./routes/loginRoutes.js"
 
 dotenv.config();
 const app = express();
@@ -59,7 +59,7 @@ app.use("/api", locadorRoutes)
 app.use("/api", imoveisRoutes)
 app.use("/api", contratosRoutes)
 app.use("/api", recebimentosRoutes)
-//app.use("/api", loginRoutes)
+app.use("/api", loginRoutes)
 
 
 // Error handling middeleware

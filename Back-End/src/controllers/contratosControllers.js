@@ -1,10 +1,4 @@
-import {
-  createContratoModel,
-  getAllContratosModel,
-  getContratoByIdModel,
-  updateContratoModel,
-  deleteContratoModel
-} from "../models/contratosModel.js";
+
 
 import handleResponse from "../utils/handleError.js";
 

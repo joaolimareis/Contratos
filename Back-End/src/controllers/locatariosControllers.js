@@ -1,10 +1,4 @@
-import {
-  createLocatariosModel,
-  getAllLocatariosByIDModel,
-  getAllLocatariosModel,
-  deleteLocatariosModel,
-  updateLocatariosModel
-} from "../models/locatarioModel.js";
+
 
 import handleResponse  from "../utils/handleError.js";
 

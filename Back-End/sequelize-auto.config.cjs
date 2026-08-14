@@ -8,6 +8,5 @@ module.exports = {
   port: process.env.DB_PORT,
   dialect: "postgres",
   directory: "./src/models",
-  tables: ["usuarios"],
   lang: "esm"
 };

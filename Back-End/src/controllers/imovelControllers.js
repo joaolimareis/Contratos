@@ -1,4 +1,3 @@
-import { getAllImovelModel, createImovelModel,updateImovelModel,getAllImovelByIdModel,deleteImovelModel } from "../models/imovelsModel.js";
 import handleResponse from "../utils/handleError.js";
 
 

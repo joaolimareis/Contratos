@@ -1,10 +1,4 @@
-import {
-  createlocadorModel,
-  getAlllocadorByIDModel,
-  getAlllocadorModel,
-  deletelocadorModel,
-  updatelocadorModel
-} from "../models/locadorModel.js";
+
 
 import handleResponse  from "../utils/handleError.js";
 

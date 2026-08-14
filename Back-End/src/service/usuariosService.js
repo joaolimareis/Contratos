@@ -1,5 +1,6 @@
 import { Usuarios } from "../models/index.js";
-
+import loginService from "../service/loginService.js"
+import bcrypt from "bcrypt";
 
 export const createUsuariosService = async (email, senha) => {
   const usuariosCreate = await Usuarios.create({email, senha})
@@ -19,8 +20,11 @@ export const getAllUsuariosService = async () =>{
 };
 
 
-export const getUsuariosByIdService = async () =>{
-    return await Usuarios.findByPk(1)
+export const getUsuariosByIdService = async (id) =>{
+    const usuariosId = await Usuarios.findByPk(id, {
+      attributes: ["id", "email"]
+    })
+    return usuariosId
 
 };
 
@@ -36,11 +40,48 @@ export const getEmailsUsuariosService = async (email) => {
 
 
 
+export const updateUsuariosService = async (
+  id,
+  email,
+  senha,
+  status
+) => {
+  const dadosAtualizacao = {
+    email,
+    status,
+  };
+
+  if (senha) {
+    dadosAtualizacao.senha = await bcrypt.hash(senha, 10);
+  }
+
+  const [quantidadeAtualizada] = await Usuarios.update(
+    dadosAtualizacao,
+    {
+      where: {
+        id,
+      },
+    }
+  );
+
+  if (quantidadeAtualizada === 0) {
+    throw new Error("Usuário não encontrado");
+  }
+
+  const usuarioAtualizado = await Usuarios.findByPk(id, {
+    attributes: ["id", "email", "status"],
+  });
+
+  return usuarioAtualizado;
+};
+
+
 
 
 export default {
   getAllUsuariosService,
   getUsuariosByIdService,
   createUsuariosService,
-  getEmailsUsuariosService
+  getEmailsUsuariosService,
+  updateUsuariosService
 };

@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { getUsusariosByIdModel,updateUsuariosModel, deleteUsuariosModel, updateParcialModel} from "../models/usuariosModel.js";
-import { getAllUsuariosService,createUsuariosService, getUsuariosByIdService, getEmailsUsuariosService} from "../service/usuariosService.js"
+import { getAllUsuariosService,createUsuariosService, getUsuariosByIdService, getEmailsUsuariosService, updateUsuariosService} from "../service/usuariosService.js"
 import loginService from "../service/loginService.js"
 import handleResponse from "../utils/handleError.js";
 
@@ -51,7 +50,7 @@ export const getAllUsuariosController = async (req, res, next) =>{
 };
 export const getUsuariosByIdController = async (req, res, next) => {
   try{
-    const usuarios = await getUsuariosByIdService()
+    const usuarios = await getUsuariosByIdService(req.params.id)
     if(!usuarios) return handleResponse(res, 404, "Usuarios not found")
     handleResponse(res, 200, "Usuario fetched success", usuarios)
 
@@ -60,33 +59,10 @@ export const getUsuariosByIdController = async (req, res, next) => {
 
   }
 }
-
-export const loginController = async (req, res, next) => {
-  try {
-    const { email, senha } = req.body;
-
-    if (!email || !senha) {
-      throw new Error("Email e senha são obrigatórios");
-    }
-
-    const resultado = await loginService(email, senha);
-
-    return handleResponse(
-      res,
-      200,
-      "Login realizado com sucesso",
-      resultado
-    );
-
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const updateUsuarios = async (req, res, next) => {
+export const updateUsuariosController = async (req, res, next) => {
   const {email, senha, status} = req.body; // Destrutincg
   try{
-    const updatedUsuarios = await updateUsuariosModel( email, senha, status, req.params.id,);
+    const updatedUsuarios = await updateUsuariosService( req.params.id, email, senha, status)
     if(!updatedUsuarios) return handleResponse(res, 404, "error update") //trocar o nome e status code do error
     handleResponse(res, 200, "Usuario updated success", updatedUsuarios)
 
@@ -106,7 +82,6 @@ export const deleteUsuarios = async (req, res, next) => {
 
   }
 }
-
 export const updateUsuariosParcial = async (req, res, next ) => {
   try{
     console.log(req.body);
@@ -129,7 +104,7 @@ export default {
   createUsuariosController,
   getAllUsuariosController,
   getUsuariosByIdController,
-  updateUsuarios,
+  updateUsuariosController,
   deleteUsuarios,
   updateUsuariosParcial
 }

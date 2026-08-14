@@ -1,9 +1,7 @@
 import app from "./app.js";
 import sequelize from "../src/config/db.js";
-import initModels from "./models/init-models.js"
 
 const port = process.env.PORT || 3001;
-const models = initModels(sequelize)
 
 // app.get("/", async (req, res) => {
 
@@ -42,19 +40,7 @@ const models = initModels(sequelize)
 
 // });
 
-const  startServer = async () =>{
-    try{
-        await sequelize.authenticate()
-        console.log("banco conectado")
-        const { Usuarios } = initModels(sequelize)
-        const usuarios = await Usuarios.findAll()
-        //console.log(usuarios)
-    }catch(error){
-        console.error("Erro ao conectar com o banco", error);
-        
-    }
-};
-startServer()
+
 
 app.listen(port,()=>{
 

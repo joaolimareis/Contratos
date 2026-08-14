@@ -1,10 +1,4 @@
-import {
-  createRecebimentoModel,
-  getAllRecebimentosModel,
-  getRecebimentoByIdModel,
-  updateRecebimentoModel,
-  deleteRecebimentoModel
-} from "../models/recebimentosModel.js";
+
 
 import handleResponse from "../utils/handleError.js";
 

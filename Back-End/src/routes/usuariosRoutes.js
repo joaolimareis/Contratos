@@ -3,7 +3,7 @@ import {
   createUsuariosController,
   getAllUsuariosController,
   getUsuariosByIdController,
-  updateUsuarios,
+  updateUsuariosController,
   deleteUsuarios,
   updateUsuariosParcial
 } from "../controllers/usuariosControllers.js";
@@ -109,7 +109,7 @@ router.get("/usuarios/:id", getUsuariosByIdController);
  *       200:
  *         description: Usuario updated successfully
  */
-router.put("/usuarios/:id", validateUsuarios, updateUsuarios);
+router.put("/usuarios/:id", updateUsuariosController);
 
 /**
  * @swagger

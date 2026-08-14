@@ -1,46 +1,57 @@
-import _sequelize from 'sequelize';
-const { Model, Sequelize } = _sequelize;
+import { Model } from "sequelize";
 
 export default class Usuarios extends Model {
   static init(sequelize, DataTypes) {
-  return super.init({
-    id: {
-      autoIncrement: true,
-      autoIncrementIdentity: true,
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true
-    },
-    email: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      unique: "usuarios_email_key"
-    },
-    senha: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    }
-  }, {
-    sequelize,
-    tableName: 'usuarios',
-    schema: 'public',
-    timestamps: false,
-    indexes: [
+    return super.init(
       {
-        name: "usuarios_email_key",
-        unique: true,
-        fields: [
-          { name: "email" },
-        ]
+        id: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          primaryKey: true,
+          autoIncrement: true,
+          autoIncrementIdentity: true,
+        },
+
+        email: {
+          type: DataTypes.STRING(255),
+          allowNull: false,
+          unique: true,
+        },
+
+        senha: {
+          type: DataTypes.STRING(255),
+          allowNull: false,
+        },
+
+        status: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: true,
+        },
       },
       {
-        name: "usuarios_pkey",
-        unique: true,
-        fields: [
-          { name: "id" },
-        ]
-      },
-    ]
-  });
+        sequelize,
+        tableName: "usuarios",
+        schema: "public",
+
+        timestamps: true,
+
+        createdAt: "created_at",
+        updatedAt: false,
+
+        indexes: [
+          {
+            name: "usuarios_email_key",
+            unique: true,
+            fields: ["email"],
+          },
+          {
+            name: "usuarios_pkey",
+            unique: true,
+            fields: ["id"],
+          },
+        ],
+      }
+    );
   }
 }

@@ -1,18 +1,28 @@
-// import handleResponse  from "../utils/handleError.js";
-// import { loginService } from "../service/usuariosService.js";
+import handleResponse  from "../utils/handleError.js";
+import { loginService } from "../service/loginService.js";
 
-// export const login = async (req, res, next) => {
+export const loginController = async (req, res, next) => {
 
-//     try {
+  try {
+    const { email, senha } = req.body;
 
-//         const { email, senha } = req.body;
-//         console.log(email)
-//         const token = await loginService(email, senha);
-//         console.log(token)
-//         handleResponse(res, 200, "Login realizado", token);
-//     } catch (err) {
-//         next(err);
-//     }
-// }
+    if (!email || !senha) {
+      throw new Error("Email e senha são obrigatórios");
+    }
 
-// export default login
+    const resultado = await loginService(email, senha);
+
+    return handleResponse(
+      res,
+      200,
+      "Login realizado com sucesso",
+      resultado
+    );
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+export default loginController

@@ -9,6 +9,7 @@ const usuariosSchema = Joi.object({
     .pattern(/[0-9]/)
     .pattern(/[!@#$%^&*]/)
     .required(),
+    status: Joi.boolean()
 })
 export const validateUsuarios = (req, res, next) =>{
 
