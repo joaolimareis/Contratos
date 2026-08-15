@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import usuariosRoutes from "./routes/usuariosRoutes.js";
 import locatariosRoutes from "./routes/locatariosRotues.js";
@@ -21,6 +23,15 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 console.log("🔥 APP NOVA VERSAO CARREGADA");
+
+/*
+|--------------------------------------------------------------------------
+| Paths
+|--------------------------------------------------------------------------
+*/
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /*
 |--------------------------------------------------------------------------
@@ -47,14 +58,14 @@ const swaggerOptions = {
     ],
   },
 
-  apis: ["./src/routes/*.js"],
+  apis: [path.join(__dirname, "routes", "*.js")],
 };
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 
 /*
 |--------------------------------------------------------------------------
-| Middlewares globais
+| Middlewares
 |--------------------------------------------------------------------------
 */
 
@@ -81,7 +92,7 @@ app.use(
 
 /*
 |--------------------------------------------------------------------------
-| Rota principal
+| Root
 |--------------------------------------------------------------------------
 */
 
@@ -91,7 +102,7 @@ app.get("/", (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| Rotas da API
+| Routes
 |--------------------------------------------------------------------------
 */
 
