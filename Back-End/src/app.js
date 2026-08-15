@@ -1,72 +1,46 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv"
-import pool from "../src/config/db.js"
-import swaggerJSDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express"
-import usuariosRoutes from "./routes/usuariosRoutes.js"
+import dotenv from "dotenv";
+import usuariosRoutes from "./routes/usuariosRoutes.js";
 import errorHandling from "./middlewares/errorHandler.js";
-import locatariosRoutes from "./routes/locatariosRotues.js"
-import locadorRoutes from "./routes/locadorRoutes.js"
-import imoveisRoutes from "./routes/imoveisRoutes.js"
-import contratosRoutes from "./routes/contratosRoutes.js"
-import recebimentosRoutes from "./routes/recebimentosRoutes.js"
-import loginRoutes from "./routes/loginRoutes.js"
+import locatariosRoutes from "./routes/locatariosRotues.js";
+import locadorRoutes from "./routes/locadorRoutes.js";
+import imoveisRoutes from "./routes/imoveisRoutes.js";
+import contratosRoutes from "./routes/contratosRoutes.js";
+import recebimentosRoutes from "./routes/recebimentosRoutes.js";
+import loginRoutes from "./routes/loginRoutes.js";
 
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
 
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Api Contratos v1',
-      version: '1.0.0',
-      description: 'A api for my project in node js, for Contratos manager'
-    },
-    servers: [
-      {
-        url: process.env.API_URL || `http://localhost:${port}`,
-        description: "Servidor da API"
-      },
-    ],
-  },
-  apis: ['./src/routes/*.js']
-};
-const swaggersDocs = swaggerJSDoc(swaggerOptions);
-
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggersDocs)
-);
-app.get("/", (req, res) => {
-  res.redirect("/api-docs/");
-});
-
-//Middlewares
-app.use(express.json())
-app.use(cors())
+// Middlewares essenciais
+app.use(express.json());
+app.use(cors());
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.originalUrl}`);
   next();
 });
-// Routes
-app.use("/api", usuariosRoutes)
-app.use("/api", locatariosRoutes)
-app.use("/api", locadorRoutes)
-app.use("/api", imoveisRoutes)
-app.use("/api", contratosRoutes)
-app.use("/api", recebimentosRoutes)
-app.use("/api", loginRoutes)
 
+// Rota raiz informando que a API está ativa
+app.get("/", (req, res) => {
+  res.json({
+    status: "online",
+    mensagem: "API de Contratos rodando com sucesso no Vercel!",
+    versao: "1.0.0"
+  });
+});
 
-// Error handling middeleware
-app.use(errorHandling)
-// Create table before stating server
-// Testing POSTGRES COnnection
+// Routes da aplicação
+app.use("/api", usuariosRoutes);
+app.use("/api", locatariosRoutes);
+app.use("/api", locadorRoutes);
+app.use("/api", imoveisRoutes);
+app.use("/api", contratosRoutes);
+app.use("/api", recebimentosRoutes);
+app.use("/api", loginRoutes);
 
+// Error handling middleware
+app.use(errorHandling);
 
-
-export default app
+export default app;
