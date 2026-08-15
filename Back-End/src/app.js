@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import swaggerJSDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
 import usuariosRoutes from "./routes/usuariosRoutes.js";
 import errorHandling from "./middlewares/errorHandler.js";
 import locatariosRoutes from "./routes/locatariosRotues.js";
@@ -35,7 +34,7 @@ const swaggerOptions = {
   apis: ['./src/routes/*.js']
 };
 
-const swaggersDocs = swaggerJSDoc(swaggerOptions);
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
 
 // Middlewares essenciais
 app.use(express.json());
@@ -45,22 +44,53 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rota do Swagger restaurada com opções seguras para Serverless
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggersDocs, {
-    explorer: true,
-    customCss: '.swagger-ui .topbar { display: none }',
-    swaggerOptions: {
-      persistAuthorization: true,
-    }
-  })
-);
+// Rota que retorna apenas o JSON do Swagger
+app.get("/swagger.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerSpec);
+});
+
+// Rota do Swagger UI usando CDN (Compatível com Serverless / Vercel)
+app.get("/api-docs", (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Api Contratos v1 - Swagger UI</title>
+      <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
+      <style>
+        html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }
+        *, *:before, *:after { box-sizing: inherit; }
+        body { margin: 0; background: #fafafa; }
+        .swagger-ui .topbar { display: none; }
+      </style>
+    </head>
+    <body>
+      <div id="swagger-ui"></div>
+      <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+      <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js"></script>
+      <script>
+        window.onload = function() {
+          window.ui = SwaggerUIBundle({
+            url: "/swagger.json",
+            dom_id: '#swagger-ui',
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            layout: "StandaloneLayout"
+          });
+        };
+      </script>
+    </body>
+    </html>
+  `);
+});
 
 // Rota raiz redirecionando para o Swagger
 app.get("/", (req, res) => {
-  res.redirect("/api-docs/");
+  res.redirect("/api-docs");
 });
 
 // Routes da aplicação
