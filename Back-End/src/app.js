@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import swaggerJSDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -52,13 +51,18 @@ const swaggerOptions = {
 
     servers: [
       {
-        url: process.env.API_URL || `http://localhost:${port}`,
+        url:
+          process.env.API_URL ||
+          `http://localhost:${port}`,
+
         description: "Servidor da API",
       },
     ],
   },
 
-  apis: [path.join(__dirname, "routes", "*.js")],
+  apis: [
+    path.join(__dirname, "routes", "*.js"),
+  ],
 };
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
@@ -80,15 +84,74 @@ app.use((req, res, next) => {
 
 /*
 |--------------------------------------------------------------------------
+| Swagger JSON
+|--------------------------------------------------------------------------
+*/
+
+app.get("/api-docs/swagger.json", (req, res) => {
+  res.json(swaggerDocs);
+});
+
+/*
+|--------------------------------------------------------------------------
 | Swagger UI
 |--------------------------------------------------------------------------
 */
 
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocs)
-);
+app.get("/api-docs", (req, res) => {
+  res.redirect("/api-docs/");
+});
+
+app.get("/api-docs/", (req, res) => {
+  res.type("html").send(`
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>API Contratos - Swagger</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css"
+  />
+</head>
+
+<body>
+
+  <div id="swagger-ui"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+
+  <script>
+    window.onload = () => {
+      window.ui = SwaggerUIBundle({
+        url: "/api-docs/swagger.json",
+
+        dom_id: "#swagger-ui",
+
+        deepLinking: true,
+
+        presets: [
+          SwaggerUIBundle.presets.apis
+        ],
+
+        layout: "BaseLayout"
+      });
+    };
+  </script>
+
+</body>
+
+</html>
+  `);
+});
 
 /*
 |--------------------------------------------------------------------------
