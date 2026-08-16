@@ -11,7 +11,7 @@ import locadorRoutes from "./routes/locadorRoutes.js";
 import imoveisRoutes from "./routes/imoveisRoutes.js";
 import contratosRoutes from "./routes/contratosRoutes.js";
 import recebimentosRoutes from "./routes/recebimentosRoutes.js";
-import loginRoutes from "./routes/loginRoutes.js";
+// import loginRoutes from "./routes/loginRoutes.js";
 
 import errorHandling from "./middlewares/errorHandler.js";
 
@@ -43,7 +43,7 @@ const swaggerOptions = {
     openapi: "3.0.0",
 
     info: {
-      title: "API Contratos v1",
+      title: "API Contratos v2",
       version: "1.0.0",
       description:
         "API para gerenciamento de contratos desenvolvida em Node.js.",
@@ -177,7 +177,7 @@ app.use("/api", contratosRoutes);
 
 app.use("/api", recebimentosRoutes);
 
-app.use("/api", loginRoutes);
+// app.use("/api", loginRoutes);
 
 /*
 |--------------------------------------------------------------------------
