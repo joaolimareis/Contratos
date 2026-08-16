@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 import sequelize from "./config/db.js";
 import swaggerJSDoc from "swagger-jsdoc";
 import path from "node:path";
@@ -12,9 +12,11 @@ import locadorRoutes from "./routes/locadorRoutes.js";
 import imoveisRoutes from "./routes/imoveisRoutes.js";
 import contratosRoutes from "./routes/contratosRoutes.js";
 import recebimentosRoutes from "./routes/recebimentosRoutes.js";
-// import loginRoutes from "./routes/loginRoutes.js";
 
 import errorHandling from "./middlewares/errorHandler.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
