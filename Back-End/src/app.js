@@ -99,10 +99,6 @@ app.get("/api-docs/swagger.json", (req, res) => {
 */
 
 app.get("/api-docs", (req, res) => {
-  res.redirect("/api-docs/");
-});
-
-app.get("/api-docs/", (req, res) => {
   res.type("html").send(`
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -160,7 +156,7 @@ app.get("/api-docs/", (req, res) => {
 */
 
 app.get("/", (req, res) => {
-  res.redirect("/api-docs/");
+  res.redirect("/api-docs");
 });
 
 /*
