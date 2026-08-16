@@ -23,7 +23,7 @@ A API está hospedada utilizando o Render e possui uma documentação interativa
 É possível visualizar todos os endpoints disponíveis, realizar testes das requisições e explorar a estrutura da API diretamente pelo navegador.
 
 🔗 Documentação Swagger:
-https://contratos-4u9g.onrender.com/api-docs/
+[https://contratos-4u9g.onrender.com/api-docs/](https://contratos-henna.vercel.app/api-docs#/)
 
 > Futuramente pretendo adicionar imagens, GIFs ou vídeos demonstrando o funcionamento da aplicação para facilitar a visualização do projeto.
 
@@ -41,10 +41,10 @@ Utilizado como ambiente de execução da aplicação.
 
 Framework utilizado para criação do servidor HTTP, organização das rotas e construção da API REST.
 
-### PostgreSQL
+### PostgreSQL e ORM
 
 Banco de dados relacional utilizado para persistência das informações do sistema.
-
+Modifiquei toda a estrutura para um ORM SEQUELIZE
 ### Docker
 
 Utilizado para criação e gerenciamento do ambiente da aplicação, facilitando a configuração e execução do projeto em diferentes ambientes.
