@@ -1,74 +1,198 @@
+import {
+  createImovelService,
+  getAllImovelService,
+  getImovelByIdService,
+  updateImovelService,
+  deleteImovelService
+} from "../service/imovelService.js";
+
 import handleResponse from "../utils/handleError.js";
 
 
-export const createImovel = async (req, res, next) => {
-  try{
-    const newImovel = await createImovelModel(req.body)
-    handleResponse(res, 201, "imovel created sucess", newImovel)
+export const createImovelController = async (req, res, next) => {
 
-  }catch(err){
-    next(err)
+  try {
+
+    const {
+      locador_id,
+      endereco,
+      numero,
+      status
+    } = req.body;
+
+
+    const newImovel = await createImovelService(
+      locador_id,
+      endereco,
+      numero,
+      status
+    );
+
+
+    return handleResponse(
+      res,
+      201,
+      "Imovel created success",
+      newImovel
+    );
+
+  } catch (err) {
+
+    next(err);
+
   }
 
-}
+};
 
-export const getAllImovel = async (req, res, next) => {
-  try{
-    const imovel = await getAllImovelModel()
-    handleResponse(res, 200, "imoveis fetched sucessd", imovel)
 
-  }catch(err){
-    next(err)
-  }
-}
+export const getAllImovelController = async (req, res, next) => {
 
-export const getAllImovelById = async (req, res, next) => {
-  
-  try{
-    const imovel = await getAllImovelByIdModel(req.params.id)
-    if(!imovel) return handleResponse(res, 404, "Imovel not found")
-    handleResponse(res, 200, "Imovel fetched sucess", imovel)
+  try {
 
-  }catch(err){
-    next(err)
+    const imoveis = await getAllImovelService();
+
+    return handleResponse(
+      res,
+      200,
+      "Imoveis fetched success",
+      imoveis
+    );
+
+  } catch (err) {
+
+    next(err);
 
   }
-}
 
-export const updateImovel = async (req, res, next) => {
+};
 
-  try{
-    const {id} = req.params;
-    const dadosAtulziados = req.body
-    const updateImovel = await updateImovelModel(id, dadosAtulziados)
 
-    if (!updateImovel){
-      return handleResponse(res, 404, "Imovel not found")
+export const getImovelByIdController = async (req, res, next) => {
+
+  try {
+
+    const imovel = await getImovelByIdService(
+      req.params.id
+    );
+
+
+    if (!imovel) {
+
+      return handleResponse(
+        res,
+        404,
+        "Imovel not found"
+      );
+
     }
-    handleResponse(res, 200, "imovel updated sucess", updateImovel)
-    } catch(err){
-      next(err)
-    }
-}
 
-export const deleteImovel = async(req, res, next) => {
-  try{
-      const deleteImovel = await deleteImovelModel(req.params.id)
-      if(!deleteImovel){
-        return handleResponse(res, 404, "imovel not found")
-      }
-      handleResponse(res, 200, "Imovel deleted sucess", deleteImovel)
 
-  }catch(err){
-    next(err)
+    return handleResponse(
+      res,
+      200,
+      "Imovel fetched success",
+      imovel
+    );
+
+  } catch (err) {
+
+    next(err);
 
   }
-}
+
+};
+
+
+export const updateImovelController = async (req, res, next) => {
+
+  try {
+
+    const { id } = req.params;
+
+    const {
+      locador_id,
+      endereco,
+      numero,
+      status
+    } = req.body;
+
+
+    const updatedImovel = await updateImovelService(
+      id,
+      locador_id,
+      endereco,
+      numero,
+      status
+    );
+
+
+    if (!updatedImovel) {
+
+      return handleResponse(
+        res,
+        404,
+        "Imovel not found"
+      );
+
+    }
+
+
+    return handleResponse(
+      res,
+      200,
+      "Imovel updated success",
+      updatedImovel
+    );
+
+  } catch (err) {
+
+    next(err);
+
+  }
+
+};
+
+
+export const deleteImovelController = async (req, res, next) => {
+
+  try {
+
+    const deletedImovel = await deleteImovelService(
+      req.params.id
+    );
+
+
+    if (!deletedImovel) {
+
+      return handleResponse(
+        res,
+        404,
+        "Imovel not found"
+      );
+
+    }
+
+
+    return handleResponse(
+      res,
+      200,
+      "Imovel deleted success",
+      deletedImovel
+    );
+
+  } catch (err) {
+
+    next(err);
+
+  }
+
+};
+
 
 export default {
-  createImovel,
-  getAllImovel,
-  getAllImovelById,
-  updateImovel,
-  deleteImovel
-}
+  createImovelController,
+  getAllImovelController,
+  getImovelByIdController,
+  updateImovelController,
+  deleteImovelController
+};

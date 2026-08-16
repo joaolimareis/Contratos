@@ -71,9 +71,9 @@ export const updateUsuariosController = async (req, res, next) => {
 
   }
 }
-export const deleteUsuarios = async (req, res, next) => {
+export const deleteUsuariosController = async (req, res, next) => {
   try{
-    const deletedUsuarios = await deleteUsuariosModel(req.params.id);
+    const deletedUsuarios = await deleteUsuariosServices(req.params.id);
     if(!deletedUsuarios) return handleResponse(res, 404, "Usuarios not found")
     handleResponse(res, 200, "Usuario deletde success", deletedUsuarios)
 
@@ -82,29 +82,29 @@ export const deleteUsuarios = async (req, res, next) => {
 
   }
 }
-export const updateUsuariosParcial = async (req, res, next ) => {
-  try{
-    console.log(req.body);
-console.log(req.params);
-    const { id } = req.params
-    const updateUsuarioPartial =  await updateParcialModel(id, req.body)
-    if (!updateUsuarioPartial) {
-      return handleResponse(res, 404, "Usuário não encontrado ou nenhum campo informado");
-    }
+// export const updateUsuariosParcial = async (req, res, next ) => {
+//   try{
+//     console.log(req.body);
+// console.log(req.params);
+//     const { id } = req.params
+//     const updateUsuarioPartial =  await updateParcialModel(id, req.body)
+//     if (!updateUsuarioPartial) {
+//       return handleResponse(res, 404, "Usuário não encontrado ou nenhum campo informado");
+//     }
 
-    handleResponse(res, 200, "Usuário atualizado com sucesso", updateUsuarioPartial);
+//     handleResponse(res, 200, "Usuário atualizado com sucesso", updateUsuarioPartial);
 
     
-  }catch(err){
-    next(err)
-  }
-}
+//   }catch(err){
+//     next(err)
+//   }
+// }
 
 export default {  
   createUsuariosController,
   getAllUsuariosController,
   getUsuariosByIdController,
   updateUsuariosController,
-  deleteUsuarios,
-  updateUsuariosParcial
+  deleteUsuariosController,
+  // updateUsuariosParcial
 }

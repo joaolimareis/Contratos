@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+import dotenv from "dotenv"
+import sequelize from "./config/db.js";
 import swaggerJSDoc from "swagger-jsdoc";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,24 +21,7 @@ dotenv.config();
 const app = express();
 
 const port = process.env.PORT || 3001;
-
 console.log("🔥 APP NOVA VERSAO CARREGADA");
-
-/*
-|--------------------------------------------------------------------------
-| Paths
-|--------------------------------------------------------------------------
-*/
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-/*
-|--------------------------------------------------------------------------
-| Swagger
-|--------------------------------------------------------------------------
-*/
-
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",

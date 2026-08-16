@@ -1,16 +1,17 @@
 import express from "express";
+
 import {
-  createLocatarios,
-  getAllLocatarios,
-  getLocatarioById,
-  updateLocatarios,
-  deleteLocatarios
+  createLocatariosController,
+  getAllLocatariosController,
+  getLocatariosByIdController,
+  updateLocatariosController,
+  deleteLocatariosController
 } from "../controllers/locatariosControllers.js";
+
 import validateLocatario from "../middlewares/locatariosValidador.js";
-import authMiddleware from "../middlewares/authMiddleware.js"
 
 const router = express.Router();
-router.use(authMiddleware);
+
 
 /**
  * @swagger
@@ -18,6 +19,7 @@ router.use(authMiddleware);
  *   name: Locatarios
  *   description: Locatarios management API
  */
+
 
 /**
  * @swagger
@@ -33,7 +35,11 @@ router.use(authMiddleware);
  *             schema:
  *               type: array
  */
-router.get("/locatarios", getAllLocatarios);
+router.get(
+  "/locatarios",
+  getAllLocatariosController
+);
+
 
 /**
  * @swagger
@@ -51,7 +57,12 @@ router.get("/locatarios", getAllLocatarios);
  *       201:
  *         description: Locatario created successfully
  */
-router.post("/locatarios", validateLocatario, createLocatarios);
+router.post(
+  "/locatarios",
+  validateLocatario,
+  createLocatariosController
+);
+
 
 /**
  * @swagger
@@ -72,7 +83,11 @@ router.post("/locatarios", validateLocatario, createLocatarios);
  *       404:
  *         description: Locatario not found
  */
-router.get("/locatarios/:id", getLocatarioById);
+router.get(
+  "/locatarios/:id",
+  getLocatariosByIdController
+);
+
 
 /**
  * @swagger
@@ -96,8 +111,14 @@ router.get("/locatarios/:id", getLocatarioById);
  *     responses:
  *       200:
  *         description: Locatario updated successfully
+ *       404:
+ *         description: Locatario not found
  */
-router.put("/locatarios/:id", updateLocatarios);
+router.put(
+  "/locatarios/:id",
+  updateLocatariosController
+);
+
 
 /**
  * @swagger
@@ -115,7 +136,13 @@ router.put("/locatarios/:id", updateLocatarios);
  *     responses:
  *       200:
  *         description: Locatario deleted successfully
+ *       404:
+ *         description: Locatario not found
  */
-router.delete("/locatarios/:id", deleteLocatarios);
+router.delete(
+  "/locatarios/:id",
+  deleteLocatariosController
+);
+
 
 export default router;

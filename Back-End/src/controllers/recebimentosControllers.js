@@ -1,101 +1,207 @@
-
+import {
+  createRecebimentoService,
+  getAllRecebimentosService,
+  getRecebimentoByIdService,
+  updateRecebimentoService,
+  deleteRecebimentoService
+} from "../service/recebimentosService.js";
 
 import handleResponse from "../utils/handleError.js";
 
-export const createRecebimento = async (req, res, next) => {
-  try {
-    const newRecebimento = await createRecebimentoModel(req.body);
 
-    handleResponse(
+export const createRecebimentoController = async (req, res, next) => {
+
+  try {
+
+    const {
+      contrato_id,
+      data_vencimento,
+      data_pagamento,
+      valor_cobrado,
+      valor_recebido,
+      status
+    } = req.body;
+
+
+    const newRecebimento = await createRecebimentoService(
+      contrato_id,
+      data_vencimento,
+      data_pagamento,
+      valor_cobrado,
+      valor_recebido,
+      status
+    );
+
+
+    return handleResponse(
       res,
       201,
-      "Recebimento created sucess",
+      "Recebimento created success",
       newRecebimento
     );
+
   } catch (err) {
+
     next(err);
+
   }
+
 };
 
-export const getAllRecebimentos = async (req, res, next) => {
-  try {
-    const recebimentos = await getAllRecebimentosModel();
 
-    handleResponse(
+export const getAllRecebimentosController = async (req, res, next) => {
+
+  try {
+
+    const recebimentos = await getAllRecebimentosService();
+
+
+    return handleResponse(
       res,
       200,
-      "Recebimentos fetched sucess",
+      "Recebimentos fetched success",
       recebimentos
     );
+
   } catch (err) {
+
     next(err);
+
   }
+
 };
 
-export const getRecebimentoById = async (req, res, next) => {
+
+export const getRecebimentoByIdController = async (req, res, next) => {
+
   try {
-    const recebimento = await getRecebimentoByIdModel(req.params.id);
+
+    const recebimento = await getRecebimentoByIdService(
+      req.params.id
+    );
+
 
     if (!recebimento) {
-      return handleResponse(res, 404, "Recebimento not found");
+
+      return handleResponse(
+        res,
+        404,
+        "Recebimento not found"
+      );
+
     }
 
-    handleResponse(
+
+    return handleResponse(
       res,
       200,
-      "Recebimento fetched sucess",
+      "Recebimento fetched success",
       recebimento
     );
+
   } catch (err) {
+
     next(err);
+
   }
+
 };
 
-export const updateRecebimento = async (req, res, next) => {
+
+export const updateRecebimentoController = async (req, res, next) => {
+
   try {
+
     const { id } = req.params;
 
-    const recebimentoAtualizado =
-      await updateRecebimentoModel(id, req.body);
+    const {
+      contrato_id,
+      data_vencimento,
+      data_pagamento,
+      valor_cobrado,
+      valor_recebido,
+      status
+    } = req.body;
 
-    if (!recebimentoAtualizado) {
-      return handleResponse(res, 404, "Recebimento not found");
+
+    const updatedRecebimento = await updateRecebimentoService(
+      id,
+      contrato_id,
+      data_vencimento,
+      data_pagamento,
+      valor_cobrado,
+      valor_recebido,
+      status
+    );
+
+
+    if (!updatedRecebimento) {
+
+      return handleResponse(
+        res,
+        404,
+        "Recebimento not found"
+      );
+
     }
 
-    handleResponse(
+
+    return handleResponse(
       res,
       200,
-      "Recebimento updated sucess",
-      recebimentoAtualizado
+      "Recebimento updated success",
+      updatedRecebimento
     );
+
   } catch (err) {
+
     next(err);
+
   }
+
 };
 
-export const deleteRecebimento = async (req, res, next) => {
+
+export const deleteRecebimentoController = async (req, res, next) => {
+
   try {
-    const recebimento = await deleteRecebimentoModel(req.params.id);
 
-    if (!recebimento) {
-      return handleResponse(res, 404, "Recebimento not found");
+    const deletedRecebimento = await deleteRecebimentoService(
+      req.params.id
+    );
+
+
+    if (!deletedRecebimento) {
+
+      return handleResponse(
+        res,
+        404,
+        "Recebimento not found"
+      );
+
     }
 
-    handleResponse(
+
+    return handleResponse(
       res,
       200,
-      "Recebimento deleted sucess",
-      recebimento
+      "Recebimento deleted success",
+      deletedRecebimento
     );
+
   } catch (err) {
+
     next(err);
+
   }
+
 };
+
 
 export default {
-  createRecebimento,
-  getAllRecebimentos,
-  getRecebimentoById,
-  updateRecebimento,
-  deleteRecebimento,
+  createRecebimentoController,
+  getAllRecebimentosController,
+  getRecebimentoByIdController,
+  updateRecebimentoController,
+  deleteRecebimentoController
 };

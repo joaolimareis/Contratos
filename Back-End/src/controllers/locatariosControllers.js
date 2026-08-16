@@ -1,80 +1,172 @@
+import {
+  createLocatariosService,
+  getAllLocatariosService,
+  getLocatariosByIdService,
+  updateLocatariosService,
+  deleteLocatariosService
+} from "../service/locatariosService.js";
+
+import handleResponse from "../utils/handleError.js";
 
 
-import handleResponse  from "../utils/handleError.js";
-
-export const createLocatarios = async (req, res, next) => {
-  try{
-    const newLocatario = await createLocatariosModel(req.body)
-    handleResponse(res, 201, "Locatario created success", newLocatario)
-      
-
-  } catch(err){
-    next(err)
-
-  } 
-
-}
-
-export const getAllLocatarios = async (req, res, next) => {
+export const createLocatariosController = async (req, res, next) => {
   try {
-    const locatarios = await getAllLocatariosModel();
+    const {
+      nome_locatario,
+      tel_locatario,
+      rua_locatario,
+      bairro_locatario,
+      cep_locatario,
+      cpf_locatario,
+      rg_locatario,
+      uf_locatario
+    } = req.body;
 
-    console.log(locatarios);
+    const newLocatario = await createLocatariosService(
+      nome_locatario,
+      tel_locatario,
+      rua_locatario,
+      bairro_locatario,
+      cep_locatario,
+      cpf_locatario,
+      rg_locatario,
+      uf_locatario
+    );
 
-    handleResponse(res, 200, "locatarios fetched success", locatarios);
+    return handleResponse(
+      res,
+      201,
+      "Locatario created success",
+      newLocatario
+    );
+
   } catch (err) {
     next(err);
   }
 };
 
-export const getLocatarioById = async (req, res, next) => {
-  try{
-      const locatarios = await getAllLocatariosByIDModel(req.params.id)
-      if(!locatarios)return handleResponse(res, 404, "Locatarios not found")
-      handleResponse(res, 200, "Locatario fetched sucess", locatarios)
-  }catch(err){
-    next(err)
 
+export const getAllLocatariosController = async (req, res, next) => {
+  try {
+    const locatarios = await getAllLocatariosService();
+
+    return handleResponse(
+      res,
+      200,
+      "Locatarios fetched success",
+      locatarios
+    );
+
+  } catch (err) {
+    next(err);
   }
-}
+};
 
-export const updateLocatarios = async (req, res, next) =>{
-  try{
+
+export const getLocatariosByIdController = async (req, res, next) => {
+  try {
+    const locatario = await getLocatariosByIdService(req.params.id);
+
+    if (!locatario) {
+      return handleResponse(
+        res,
+        404,
+        "Locatario not found"
+      );
+    }
+
+    return handleResponse(
+      res,
+      200,
+      "Locatario fetched success",
+      locatario
+    );
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+export const updateLocatariosController = async (req, res, next) => {
+  try {
     const { id } = req.params;
-    const dadosAtualizados = req.body;
-    const updateLocatario = await updateLocatariosModel(id, dadosAtualizados)
 
-    if (!updateLocatario){
-      return handleResponse(res, 404, "Locatarios not found", updateLocatario)
+    const {
+      nome_locatario,
+      tel_locatario,
+      rua_locatario,
+      bairro_locatario,
+      cep_locatario,
+      cpf_locatario,
+      rg_locatario,
+      uf_locatario
+    } = req.body;
+
+    const updatedLocatario = await updateLocatariosService(
+      id,
+      nome_locatario,
+      tel_locatario,
+      rua_locatario,
+      bairro_locatario,
+      cep_locatario,
+      cpf_locatario,
+      rg_locatario,
+      uf_locatario
+    );
+
+    if (!updatedLocatario) {
+      return handleResponse(
+        res,
+        404,
+        "Locatario not found"
+      );
     }
-    handleResponse(res, 200, "locatario updated success", updateLocatario)
 
+    return handleResponse(
+      res,
+      200,
+      "Locatario updated success",
+      updatedLocatario
+    );
 
-  }catch(err){
-    next(err)
-
+  } catch (err) {
+    next(err);
   }
-}
+};
 
-export const deleteLocatarios = async(req, res, next ) => {
-  try{
-    const deleteLocatarios = await deleteLocatariosModel(req.params.id)
-    if(!deleteLocatarios){
-      return handleResponse(res, 404, "Locatarios not found")
+
+export const deleteLocatariosController = async (req, res, next) => {
+  try {
+    const deletedLocatario = await deleteLocatariosService(
+      req.params.id
+    );
+
+    if (!deletedLocatario) {
+      return handleResponse(
+        res,
+        404,
+        "Locatario not found"
+      );
     }
-    handleResponse(res, 200, "locatario delete sucess", deleteLocatarios)
-  }catch(err){
-  next(err)
 
-}  
+    return handleResponse(
+      res,
+      200,
+      "Locatario deleted success",
+      deletedLocatario
+    );
 
-}
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 export default {
-  createLocatarios,
-  getAllLocatarios,
-  getLocatarioById,
-  updateLocatarios,
-  deleteLocatarios
-
-}
+  createLocatariosController,
+  getAllLocatariosController,
+  getLocatariosByIdController,
+  updateLocatariosController,
+  deleteLocatariosController
+};
