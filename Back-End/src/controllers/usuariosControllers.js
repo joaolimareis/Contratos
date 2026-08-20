@@ -4,12 +4,8 @@ import { getAllUsuariosService,createUsuariosService, getUsuariosByIdService, ge
 import loginService from "../service/loginService.js"
 import handleResponse from "../utils/handleError.js";
 
-
-
-
 export const createUsuariosController = async (req, res, next) => {
 
- 
   try{
 
     const {email, senha} = req.body

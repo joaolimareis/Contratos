@@ -18,12 +18,12 @@ O objetivo principal foi aplicar e consolidar meus conhecimentos em desenvolvime
 
 # 🌐 Demonstração da API
 
-A API está hospedada utilizando o Render e possui uma documentação interativa através do Swagger UI.
+A API está hospedada utilizando o Vercel e possui uma documentação interativa através do Swagger UI.
 
 É possível visualizar todos os endpoints disponíveis, realizar testes das requisições e explorar a estrutura da API diretamente pelo navegador.
 
 🔗 Documentação Swagger:
-[https://contratos-4u9g.onrender.com/api-docs/](https://contratos-henna.vercel.app/api-docs#/)
+[https://contratos-henna.vercel.app/api-docs#/](https://contratos-henna.vercel.app/api-docs#/)
 
 > Futuramente pretendo adicionar imagens, GIFs ou vídeos demonstrando o funcionamento da aplicação para facilitar a visualização do projeto.
 

@@ -2,10 +2,10 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import sequelize from "./config/db.js";
-import swaggerJSDoc from "swagger-jsdoc";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
+import swaggerUi from "swagger-ui-express";
+import swaggerJsdoc from "swagger-jsdoc";
 import usuariosRoutes from "./routes/usuariosRoutes.js";
 import locatariosRoutes from "./routes/locatariosRotues.js";
 import locadorRoutes from "./routes/locadorRoutes.js";
@@ -23,35 +23,44 @@ dotenv.config();
 const app = express();
 
 const port = process.env.PORT || 3001;
-console.log("🔥 APP NOVA VERSAO CARREGADA");
-const swaggerOptions = {
+
+// 1. Configurações básicas do Swagger/OpenAPI
+const options = {
   definition: {
-    openapi: "3.0.0",
-
+    openapi: '3.0.0',
     info: {
-      title: "API Contratos v2",
-      version: "1.0.0",
-      description:
-        "API para gerenciamento de contratos desenvolvida em Node.js.",
+      title: 'Minha API com Express e Swagger',
+      version: '1.0.0',
+      description: 'Documentação da API desenvolvida com Node.js e Express',
     },
-
     servers: [
       {
-        url:
-          process.env.API_URL ||
-          `http://localhost:${port}`,
-
-        description: "Servidor da API",
+        url: 'http://localhost:3001',
+        description: 'Servidor Local',
       },
     ],
   },
-
-  apis: [
-    path.join(__dirname, "routes", "*.js"),
-  ],
+  // Caminho para os arquivos que contêm as documentações (JSDoc)
+  apis: [path.posix.join(process.cwd(), 'src', 'routes', '*.js')],
 };
 
-const swaggerDocs = swaggerJSDoc(swaggerOptions);
+const specs = swaggerJsdoc(options);
+
+// 2. Configuração do Swagger UI
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, {
+    customCss: `
+      .curl-command {
+        display: none !important;
+      }
+    `,
+  })
+);
+console.log("🔥 APP NOVA VERSAO CARREGADA");
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -68,88 +77,13 @@ app.use((req, res, next) => {
   next();
 });
 
-/*
-|--------------------------------------------------------------------------
-| Swagger JSON
-|--------------------------------------------------------------------------
-*/
 
-app.get("/api-docs/swagger.json", (req, res) => {
-  res.json(swaggerDocs);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Swagger UI
-|--------------------------------------------------------------------------
-*/
-
-app.get("/api-docs", (req, res) => {
-  res.type("html").send(`
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-  <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1"
-  />
-
-  <title>API Contratos - Swagger</title>
-
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css"
-  />
-</head>
-
-<body>
-
-  <div id="swagger-ui"></div>
-
-  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-
-  <script>
-    window.onload = () => {
-      window.ui = SwaggerUIBundle({
-        url: "/api-docs/swagger.json",
-
-        dom_id: "#swagger-ui",
-
-        deepLinking: true,
-
-        presets: [
-          SwaggerUIBundle.presets.apis
-        ],
-
-        layout: "BaseLayout"
-      });
-    };
-  </script>
-
-</body>
-
-</html>
-  `);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Root
-|--------------------------------------------------------------------------
-*/
 
 app.get("/", (req, res) => {
-  res.redirect("/api-docs");
+  res.send("API Contratos v2");
 });
 
-/*
-|--------------------------------------------------------------------------
-| Routes
-|--------------------------------------------------------------------------
-*/
+
 
 app.use("/api", usuariosRoutes);
 
@@ -165,11 +99,6 @@ app.use("/api", recebimentosRoutes);
 
 // app.use("/api", loginRoutes);
 
-/*
-|--------------------------------------------------------------------------
-| Error Handler
-|--------------------------------------------------------------------------
-*/
 
 app.use(errorHandling);
 

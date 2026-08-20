@@ -41,22 +41,22 @@ router.get("/usuarios", getAllUsuariosController);
  *   post:
  *     summary: Create a new usuario
  *     tags: [Usuarios]
- *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             required:
- *               - nome
  *               - email
- *             
- *               
- *                
- *                
- *               
- *                
- *                 
+ *               - senha
+ *              properties:
+ *              email:
+ *                type: string
+ *                example: "user@example.com"
+ *              senha:
+ *                type: string
+ *                format: password
+ *                example: "$fd@1234"
  *     responses:
  *       201:
  *         description: Usuario created successfully
@@ -129,6 +129,7 @@ router.put("/usuarios/:id", updateUsuariosController);
  *         description: Usuario deleted successfully
  */
 router.delete("/usuarios/:id", deleteUsuariosController);
+
 
 // router.patch("/usuarios/:id",updateUsuariosParcial)
 

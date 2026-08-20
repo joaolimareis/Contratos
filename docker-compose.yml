@@ -2,30 +2,25 @@ services:
   postgres:
     image: postgres:18
     container_name: contratos-db
-
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: contratos
-
+      POSTGRES_HOST_AUTH_METHOD: trust
+      PGDATA: /var/lib/postgresql/data  # Corrigido: formato de dicionário sem hífen
     ports:
       - "5432:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
     build:
       context: ./Back-End
-
     container_name: contratos-api
-
     depends_on:
       - postgres
-
     ports:
       - "3001:3001"
-
     environment:
       PORT: 3001
       DB_HOST: postgres

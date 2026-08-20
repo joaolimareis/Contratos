@@ -2,6 +2,7 @@ import { Sequelize } from "sequelize";
 import pg from "pg";
 import "dotenv/config";
 
+
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,

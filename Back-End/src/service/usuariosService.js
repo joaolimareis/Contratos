@@ -13,10 +13,14 @@ export const createUsuariosService = async (email, senha) => {
 };
 
 export const getAllUsuariosService = async () =>{
+  try {
   const allUsuarios =  await Usuarios.findAll({
     attributes:['id', 'email']
   })
   return allUsuarios
+  } catch (error) {
+    throw new Error("Erro ao buscar usuários: " + error.message);
+  }
 };
 
 
