@@ -40,7 +40,7 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.originalUrl}`);
   next();
 });
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
 
 const options = {
   definition: {
@@ -50,54 +50,50 @@ const options = {
       version: '2.1.0',
       description: 'Documentação da API',
     },
-    servers: [
-      {
-        url: 'https://contratos-henna.vercel.app',
-        description: 'Servidor de Produção (Vercel)',
-      },
-      {
-        url: 'http://localhost:3001',
-        description: 'Servidor Local (Desenvolvimento)',
-      },
-    ],
+    servers: isProduction
+      ? [
+          {
+            url: 'https://contratos-henna.vercel.app',
+            description: 'Servidor de Produção (Vercel)',
+          },
+        ]
+      : [
+          {
+            url: 'http://localhost:3001',
+            description: 'Servidor Local (Desenvolvimento)',
+          },
+        ],
   },
-  apis: [path.join(process.cwd(), 'src', 'routes', '*.js').replaceAll('\\', '/')],
+  // Caminho mais confiável
+  apis: [
+    path.join(__dirname, 'routes', '*.js').replaceAll('\\', '/'),
+    // fallback caso a estrutura seja diferente
+    path.join(process.cwd(), 'src', 'routes', '*.js').replaceAll('\\', '/'),
+    path.join(process.cwd(), 'routes', '*.js').replaceAll('\\', '/'),
+  ],
 };
 
-const routesPath = path.join(process.cwd(), 'src', 'routes');
-console.log("🔍 Procurando rotas em:", routesPath);
-
-if (fs.existsSync(routesPath)) {
-  const files = fs.readdirSync(routesPath);
-  console.log("📂 Arquivos encontrados na pasta de rotas:", files);
-} else {
-  console.log("❌ A pasta de rotas NÃO EXISTE no caminho indicado!");
-}
 const specs = swaggerJsdoc(options);
-console.log("🔍 OBJETO SPECS GERADO PELO SWAGGER:", JSON.stringify(specs, null, 2));
+
+// Logs só em desenvolvimento
+if (!isProduction) {
+  console.log('🔍 Specs geradas:', JSON.stringify(specs, null, 2));
+}
+
+// Só loga em desenvolvimento
+if (!isProduction) {
+  console.log('🔍 Specs geradas pelo Swagger:', JSON.stringify(specs, null, 2));
+}
+
 const swaggerOptions = {
-  customCssUrl: [
-    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.9.0/swagger-ui.min.css",
-  ],
-  customJs: [
-    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.9.0/swagger-ui-bundle.js",
-    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.9.0/swagger-ui-standalone-preset.js",
-  ],
-  // Coloque o seu customCss aqui dentro, junto com o resto das opções:
   customCss: `
     .swagger-ui .topbar { display: none !important; }
-    .curl-command {
-      display: none !important;
-    }
+    .curl-command { display: none !important; }
   `,
+  // customCssUrl e customJs geralmente não são necessários
 };
 
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(specs, swaggerOptions) // <-- Apenas 2 argumentos!
-);
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerOptions));
 console.log("🔥 APP NOVA VERSAO CARREGADA");
 app.get("/", (req, res) => {
   res.redirect("/api-docs");
