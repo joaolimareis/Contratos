@@ -49,11 +49,15 @@ const options = {
     servers: [
       {
         url: 'http://localhost:3001',
-        description: 'Servidor Local',
+        description: 'Servidor Local (Desenvolvimento)',
+      },
+      {
+        url: 'https://contratos-henna.vercel.app',
+        description: 'Servidor de Produção (Vercel)',
       },
     ],
   },
-  apis: [path.posix.join(process.cwd(), 'src', 'routes', '*.js')],
+  apis: [path.join(__dirname, 'routes', '*.js')], 
 };
 
 
