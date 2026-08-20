@@ -53,28 +53,28 @@ const options = {
     servers: isProduction
       ? [
           {
-            url: 'https://contratos-henna.vercel.app',
-            description: 'Servidor de Produção (Vercel)',
+            url: 'https://contratos-henna.vercel.app', // confirme se essa é a URL correta
+            description: 'Servidor de Produção',
           },
         ]
       : [
           {
             url: 'http://localhost:3001',
-            description: 'Servidor Local (Desenvolvimento)',
+            description: 'Servidor Local',
           },
         ],
   },
-  // Caminho mais confiável
   apis: [
+    // Caminho correto para sua estrutura (src/routes/)
     path.join(__dirname, 'routes', '*.js').replaceAll('\\', '/'),
-    // fallback caso a estrutura seja diferente
-    path.join(process.cwd(), 'src', 'routes', '*.js').replaceAll('\\', '/'),
-    path.join(process.cwd(), 'routes', '*.js').replaceAll('\\', '/'),
   ],
 };
 
 const specs = swaggerJsdoc(options);
 
+// Log temporário para debug (pode remover depois)
+console.log('__dirname:', __dirname);
+console.log('Specs paths encontrados:', specs.paths ? Object.keys(specs.paths) : 'Nenhum path encontrado');
 // Logs só em desenvolvimento
 if (!isProduction) {
   console.log('🔍 Specs geradas:', JSON.stringify(specs, null, 2));
