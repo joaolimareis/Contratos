@@ -38,26 +38,36 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.originalUrl}`);
   next();
 });
+const isProduction = process.env.NODE_ENV === 'production';
+
 const options = {
   definition: {
     openapi: '3.0.0',
     info: {
       title: 'API CONTRATOS',
       version: '2.1.0',
-      description: 'Documentação da API desenvolvida com Node.js e Express',
+      description: 'Documentação da API',
     },
-    servers: [
-      {
-        url: 'http://localhost:3001',
-        description: 'Servidor Local (Desenvolvimento)',
-      },
-      {
-        url: 'https://contratos-henna.vercel.app',
-        description: 'Servidor de Produção (Vercel)',
-      },
-    ],
+    // Definimos os servidores de forma condicional
+    servers: isProduction 
+      ? [
+          {
+            url: 'https://contratos-henna.vercel.app',
+            description: 'Servidor de Produção (Vercel)',
+          }
+        ]
+      : [
+          {
+            url: 'http://localhost:3001',
+            description: 'Servidor Local (Desenvolvimento)',
+          },
+          {
+            url: 'https://contratos-henna.vercel.app',
+            description: 'Servidor de Produção (Vercel)',
+          }
+        ],
   },
-  apis: [path.join(__dirname, 'routes', '*.js')], 
+  apis: [path.join(process.cwd(), 'src/routes/*.js')], 
 };
 
 
@@ -89,9 +99,8 @@ app.use(
 );
 console.log("🔥 APP NOVA VERSAO CARREGADA");
 app.get("/", (req, res) => {
-  res.send("API Contratos v2");
+  res.redirect("/api-docs");
 });
-
 
 
 app.use("/api", usuariosRoutes);
