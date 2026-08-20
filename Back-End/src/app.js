@@ -24,44 +24,6 @@ const app = express();
 
 const port = process.env.PORT || 3001;
 
-// 1. Configurações básicas do Swagger/OpenAPI
-const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Minha API com Express e Swagger',
-      version: '1.0.0',
-      description: 'Documentação da API desenvolvida com Node.js e Express',
-    },
-    servers: [
-      {
-        url: 'http://localhost:3001',
-        description: 'Servidor Local',
-      },
-    ],
-  },
-  // Caminho para os arquivos que contêm as documentações (JSDoc)
-  apis: [path.posix.join(process.cwd(), 'src', 'routes', '*.js')],
-};
-
-const specs = swaggerJsdoc(options);
-
-// 2. Configuração do Swagger UI
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(specs, {
-    customCss: `
-      .curl-command {
-        display: none !important;
-      }
-    `,
-  })
-);
-console.log("🔥 APP NOVA VERSAO CARREGADA");
-
-
-
 /*
 |--------------------------------------------------------------------------
 | Middlewares
@@ -76,9 +38,39 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.originalUrl}`);
   next();
 });
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API CONTRATOS',
+      version: '2.1.0',
+      description: 'Documentação da API desenvolvida com Node.js e Express',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3001',
+        description: 'Servidor Local',
+      },
+    ],
+  },
+  apis: [path.posix.join(process.cwd(), 'src', 'routes', '*.js')],
+};
 
 
+const specs = swaggerJsdoc(options);
 
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, {
+    customCss: `
+      .curl-command {
+        display: none !important;
+      }
+    `,
+  })
+);
+console.log("🔥 APP NOVA VERSAO CARREGADA");
 app.get("/", (req, res) => {
   res.send("API Contratos v2");
 });
