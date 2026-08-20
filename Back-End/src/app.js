@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import fs from 'node:fs';
+
 import dotenv from "dotenv";
 import sequelize from "./config/db.js";
 import path from "node:path";
@@ -48,29 +50,29 @@ const options = {
       version: '2.1.0',
       description: 'Documentação da API',
     },
-    // Definimos os servidores de forma condicional
-    servers: isProduction 
-      ? [
-          {
-            url: 'https://contratos-henna.vercel.app',
-            description: 'Servidor de Produção (Vercel)',
-          }
-        ]
-      : [
-          {
-            url: 'http://localhost:3001',
-            description: 'Servidor Local (Desenvolvimento)',
-          },
-          {
-            url: 'https://contratos-henna.vercel.app',
-            description: 'Servidor de Produção (Vercel)',
-          }
-        ],
+    servers: [
+      {
+        url: 'https://contratos-henna.vercel.app',
+        description: 'Servidor de Produção (Vercel)',
+      },
+      {
+        url: 'http://localhost:3001',
+        description: 'Servidor Local (Desenvolvimento)',
+      },
+    ],
   },
-  apis: [path.join(process.cwd(), 'src/routes/*.js')], 
+  apis: [path.join(process.cwd(), 'src', 'routes', '*.js')],
 };
 
+const routesPath = path.join(process.cwd(), 'src', 'routes');
+console.log("🔍 Procurando rotas em:", routesPath);
 
+if (fs.existsSync(routesPath)) {
+  const files = fs.readdirSync(routesPath);
+  console.log("📂 Arquivos encontrados na pasta de rotas:", files);
+} else {
+  console.log("❌ A pasta de rotas NÃO EXISTE no caminho indicado!");
+}
 const specs = swaggerJsdoc(options);
 const swaggerOptions = {
   customCssUrl: [
@@ -100,11 +102,7 @@ app.get("/", (req, res) => {
   res.redirect("/api-docs");
 });
 
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(specs, swaggerOptions)
-);
+
 
 
 

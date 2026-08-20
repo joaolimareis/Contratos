@@ -41,6 +41,7 @@ router.get("/usuarios", getAllUsuariosController);
  *   post:
  *     summary: Create a new usuario
  *     tags: [Usuarios]
+ *     requestBody:
  *       required: true
  *       content:
  *         application/json:
@@ -49,14 +50,14 @@ router.get("/usuarios", getAllUsuariosController);
  *             required:
  *               - email
  *               - senha
- *              properties:
- *              email:
- *                type: string
- *                example: "user@example.com"
- *              senha:
- *                type: string
- *                format: password
- *                example: "$fd@1234"
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "user@example.com"
+ *               senha:
+ *                 type: string
+ *                 format: password
+ *                 example: "$fd@1234"
  *     responses:
  *       201:
  *         description: Usuario created successfully
@@ -64,7 +65,6 @@ router.get("/usuarios", getAllUsuariosController);
  *         description: Validation error
  */
 router.post("/usuarios", validateUsuarios, createUsuariosController);
-
 /**
  * @swagger
  * /api/usuarios/{id}:
