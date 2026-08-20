@@ -53,44 +53,30 @@ const options = {
     servers: isProduction
       ? [
           {
-            url: 'https://contratos-henna.vercel.app', // confirme se essa é a URL correta
-            description: 'Servidor de Produção',
+            url: 'https://contratos-henna.vercel.app', // coloque a URL correta do seu projeto
+            description: 'Produção',
           },
         ]
       : [
           {
             url: 'http://localhost:3001',
-            description: 'Servidor Local',
+            description: 'Local',
           },
         ],
   },
   apis: [
-    // Caminho correto para sua estrutura (src/routes/)
     path.join(__dirname, 'routes', '*.js').replaceAll('\\', '/'),
   ],
 };
 
 const specs = swaggerJsdoc(options);
 
-// Log temporário para debug (pode remover depois)
-console.log('__dirname:', __dirname);
-console.log('Specs paths encontrados:', specs.paths ? Object.keys(specs.paths) : 'Nenhum path encontrado');
-// Logs só em desenvolvimento
-if (!isProduction) {
-  console.log('🔍 Specs geradas:', JSON.stringify(specs, null, 2));
-}
-
-// Só loga em desenvolvimento
-if (!isProduction) {
-  console.log('🔍 Specs geradas pelo Swagger:', JSON.stringify(specs, null, 2));
-}
-
 const swaggerOptions = {
   customCss: `
     .swagger-ui .topbar { display: none !important; }
     .curl-command { display: none !important; }
   `,
-  // customCssUrl e customJs geralmente não são necessários
+  // Remova customCssUrl e customJs (eles estavam causando o problema)
 };
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerOptions));
