@@ -61,7 +61,7 @@ const options = {
       },
     ],
   },
-  apis: [path.join(process.cwd(), 'src', 'routes', '*.js')],
+  apis: [path.join(process.cwd(), 'src', 'routes', '*.js').replaceAll('\\', '/')],
 };
 
 const routesPath = path.join(process.cwd(), 'src', 'routes');
@@ -74,6 +74,7 @@ if (fs.existsSync(routesPath)) {
   console.log("❌ A pasta de rotas NÃO EXISTE no caminho indicado!");
 }
 const specs = swaggerJsdoc(options);
+console.log("🔍 OBJETO SPECS GERADO PELO SWAGGER:", JSON.stringify(specs, null, 2));
 const swaggerOptions = {
   customCssUrl: [
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.9.0/swagger-ui.min.css",
