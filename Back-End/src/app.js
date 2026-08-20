@@ -80,27 +80,32 @@ const swaggerOptions = {
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.9.0/swagger-ui-bundle.js",
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.9.0/swagger-ui-standalone-preset.js",
   ],
+  // Coloque o seu customCss aqui dentro, junto com o resto das opções:
   customCss: `
+    .swagger-ui .topbar { display: none !important; }
     .curl-command {
       display: none !important;
     }
   `,
 };
+
 app.use(
   "/api-docs",
   swaggerUi.serve,
-  swaggerUi.setup(specs, swaggerOptions, {
-    customCss: `
-      .curl-command {
-        display: none !important;
-      }
-    `,
-  })
+  swaggerUi.setup(specs, swaggerOptions) // <-- Apenas 2 argumentos!
 );
+
 console.log("🔥 APP NOVA VERSAO CARREGADA");
 app.get("/", (req, res) => {
   res.redirect("/api-docs");
 });
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, swaggerOptions)
+);
+
 
 
 app.use("/api", usuariosRoutes);
