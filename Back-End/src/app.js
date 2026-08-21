@@ -87,6 +87,7 @@ const swaggerOptions = {
 };
 
 // Importante: use apenas o setup (sem o serve em alguns casos, mas vamos manter)
+// Importante: use apenas o setup (sem o serve em alguns casos, mas vamos manter)
 app.use('/api-docs', swaggerUi.serve);
 app.get('/api-docs', swaggerUi.setup(specs, swaggerOptions));
 console.log("🔥 APP NOVA VERSAO CARREGADA");
