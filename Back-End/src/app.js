@@ -53,7 +53,7 @@ const options = {
     servers: isProduction
       ? [
           {
-            url: 'https://contratos-henna.vercel.app', // coloque a URL correta do seu projeto
+            url: 'https://contratos-henna.vercel.app', // ← coloque a URL correta do seu projeto
             description: 'Produção',
           },
         ]
@@ -76,10 +76,19 @@ const swaggerOptions = {
     .swagger-ui .topbar { display: none !important; }
     .curl-command { display: none !important; }
   `,
-  // Remova customCssUrl e customJs (eles estavam causando o problema)
+  customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui.min.css',
+  customJs: [
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-standalone-preset.js',
+  ],
+  swaggerOptions: {
+    persistAuthorization: true,
+  },
 };
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerOptions));
+// Importante: use apenas o setup (sem o serve em alguns casos, mas vamos manter)
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(specs, swaggerOptions));
 console.log("🔥 APP NOVA VERSAO CARREGADA");
 app.get("/", (req, res) => {
   res.redirect("/api-docs");
