@@ -1,19 +1,18 @@
 import express from "express";
 import cors from "cors";
-import fs from 'node:fs';
-
 import dotenv from "dotenv";
-import sequelize from "./config/db.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
+import swaggerExpress from "swagger-ui-express";
 import usuariosRoutes from "./routes/usuariosRoutes.js";
 import locatariosRoutes from "./routes/locatariosRotues.js";
 import locadorRoutes from "./routes/locadorRoutes.js";
 import imoveisRoutes from "./routes/imoveisRoutes.js";
 import contratosRoutes from "./routes/contratosRoutes.js";
 import recebimentosRoutes from "./routes/recebimentosRoutes.js";
+
 
 import errorHandling from "./middlewares/errorHandler.js";
 
@@ -53,7 +52,7 @@ const options = {
     servers: isProduction
       ? [
           {
-            url: 'https://contratos-henna.vercel.app', // ← coloque a URL correta do seu projeto
+            url: 'https://contratos-henna.vercel.app', 
             description: 'Produção',
           },
         ]
@@ -81,13 +80,13 @@ const swaggerOptions = {
     'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.js',
     'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-standalone-preset.js',
   ],
+  customfavIcon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/swagger.svg",
   swaggerOptions: {
     persistAuthorization: true,
   },
 };
 
-// Importante: use apenas o setup (sem o serve em alguns casos, mas vamos manter)
-// Importante: use apenas o setup (sem o serve em alguns casos, mas vamos manter)
+
 app.use('/api-docs', swaggerUi.serve);
 app.get('/api-docs', swaggerUi.setup(specs, swaggerOptions));
 console.log("🔥 APP NOVA VERSAO CARREGADA");

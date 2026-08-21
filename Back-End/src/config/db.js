@@ -12,7 +12,7 @@ const sequelize = isNeon
       dialectOptions: {
         ssl: {
           require: true,
-          rejectUnauthorized: true, // ← correção
+          rejectUnauthorized: true, 
         },
       },
     })
