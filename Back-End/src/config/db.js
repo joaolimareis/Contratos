@@ -8,11 +8,11 @@ const sequelize = isNeon
   ? new Sequelize(process.env.DATABASE_URL, {
       dialect: "postgres",
       dialectModule: pg,
-      logging: false, // mude para console.log se quiser ver as queries
+      logging: false,
       dialectOptions: {
         ssl: {
           require: true,
-          rejectUnauthorized: false,
+          rejectUnauthorized: true, // ← correção
         },
       },
     })
@@ -26,12 +26,6 @@ const sequelize = isNeon
         dialect: "postgres",
         dialectModule: pg,
         logging: false,
-        // dialectOptions: {
-        //   ssl: {
-        //     require: true,
-        //     rejectUnauthorized: false,
-        //   },
-        // },
       }
     );
 

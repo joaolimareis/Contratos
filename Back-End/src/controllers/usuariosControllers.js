@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
-import { getAllUsuariosService,createUsuariosService, getUsuariosByIdService, getEmailsUsuariosService, updateUsuariosService} from "../service/usuariosService.js"
+import { getAllUsuariosService,createUsuariosService, getUsuariosByIdService, getEmailsUsuariosService, updateUsuariosService,   deleteUsuariosServices
+} from "../service/usuariosService.js"
 import handleResponse from "../utils/handleError.js";
 
 export const createUsuariosController = async (req, res, next) => {
@@ -67,9 +68,9 @@ export const updateUsuariosController = async (req, res, next) => {
 }
 export const deleteUsuariosController = async (req, res, next) => {
   try{
-    const deletedUsuarios = await deleteUsuariosController(req.params.id);
+    const deletedUsuarios = await deleteUsuariosServices(req.params.id);
     if(!deletedUsuarios) return handleResponse(res, 404, "Usuarios not found")
-    handleResponse(res, 200, "Usuario deletde success", deletedUsuarios)
+    handleResponse(res, 200, "Usuario deleted success", deletedUsuarios)
 
   }catch(err){
     next(err)
