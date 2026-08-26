@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { getEmailsUsuariosService } from "./usuariosService.js"
 import { Usuarios } from "../models/index.js";
 
 

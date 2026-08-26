@@ -1,40 +1,22 @@
-// import express from "express";
-// import login from "../controllers/loginControllers.js";
+import express from "express";
 
-// const router = express.Router();
+import login from "../controllers/loginControllers.js";
+import authMiddleware from "../middlewares/authMiddleware.js";
 
-// /**
-//  * @swagger
-//  * tags:
-//  *   name: Auth
-//  *   description: Authentication management API
-//  */
+const router = express.Router();
 
-// /**
-//  * @swagger
-//  * /api/login:
-//  *   post:
-//  *     summary: User login
-//  *     tags: [Auth]
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             type: object
-//  *             properties:
-//  *               email:
-//  *                 type: string
-//  *                 example: usuario@email.com
-//  *               senha:
-//  *                 type: string
-//  *                 example: suaSenha123
-//  *     responses:
-//  *       200:
-//  *         description: Login successful, returns token
-//  *       401:
-//  *         description: Invalid credentials
-//  */
-// router.post("/login", login);
+router.post("/login", login);
 
-// export default router;
+router.get("/me", authMiddleware, (req, res) => {
+
+     console.log("ROTA /ME FOI ACESSADA");
+  console.log("USUARIO:", req.usuario);
+  return res.status(200).json({
+    usuario: {
+      id: req.usuario.id,
+      email: req.usuario.email,
+    },
+  });
+});
+
+export default router;

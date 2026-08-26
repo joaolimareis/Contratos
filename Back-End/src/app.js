@@ -5,14 +5,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
-import swaggerExpress from "swagger-ui-express";
 import usuariosRoutes from "./routes/usuariosRoutes.js";
 import locatariosRoutes from "./routes/locatariosRotues.js";
 import locadorRoutes from "./routes/locadorRoutes.js";
 import imoveisRoutes from "./routes/imoveisRoutes.js";
 import contratosRoutes from "./routes/contratosRoutes.js";
 import recebimentosRoutes from "./routes/recebimentosRoutes.js";
-
+import loginRoutes from "./routes/loginRoutes.js";
+import cookieParser from "cookie-parser";
 
 import errorHandling from "./middlewares/errorHandler.js";
 
@@ -22,18 +22,17 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 
 const app = express();
-
-const port = process.env.PORT || 3001;
-
-/*
-|--------------------------------------------------------------------------
-| Middlewares
-|--------------------------------------------------------------------------
-*/
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
+app.use(cookieParser());
 
-app.use(cors());
+
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.originalUrl}`);
@@ -53,7 +52,7 @@ const options = {
       ? [
           {
             url: 'https://contratos-henna.vercel.app', 
-            description: 'Produção',
+            description: 'Banco teste Neon',
           },
         ]
       : [
@@ -88,15 +87,21 @@ const swaggerOptions = {
 
 
 app.use('/api-docs', swaggerUi.serve);
+
 app.get('/api-docs', swaggerUi.setup(specs, swaggerOptions));
-console.log("🔥 APP NOVA VERSAO CARREGADA");
+
+
+
 app.get("/", (req, res) => {
   res.redirect("/api-docs");
 });
 
-
-
-
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    message: "Backend funcionando",
+  });
+});
 
 app.use("/api", usuariosRoutes);
 
@@ -110,7 +115,7 @@ app.use("/api", contratosRoutes);
 
 app.use("/api", recebimentosRoutes);
 
-// app.use("/api", loginRoutes);
+app.use("/api", loginRoutes);
 
 
 app.use(errorHandling);

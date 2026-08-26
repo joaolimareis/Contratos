@@ -3,11 +3,11 @@ services:
     image: postgres:18
     container_name: contratos-db
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: contratos
+      POSTGRES_DB: ${DB_NAME}
       POSTGRES_HOST_AUTH_METHOD: trust
-      PGDATA: /var/lib/postgresql/data  # Corrigido: formato de dicionário sem hífen
+      PGDATA: /var/lib/postgresql/data 
     ports:
       - "5432:5432"
     volumes:

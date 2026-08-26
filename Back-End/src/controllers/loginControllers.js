@@ -12,6 +12,12 @@ export const loginController = async (req, res, next) => {
 
     const resultado = await loginService(email, senha);
 
+    res.cookie("token", resultado.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 3600000, 
+    });
     return handleResponse(
       res,
       200,

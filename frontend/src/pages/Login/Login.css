@@ -1,0 +1,44 @@
+/* Login.css */
+
+.login-page {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+  /* Alternativa mais moderna:
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  */
+}
+
+.login-card {
+  border-radius: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Melhora o visual dos inputs floating */
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+  color: #0d6efd;
+}
+
+.form-control:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Botão com loading mais suave */
+.btn-primary {
+  transition: all 0.2s ease;
+}
+
+.btn-primary:disabled {
+  opacity: 0.85;
+}
+
+/* Responsividade extra */
+@media (max-width: 576px) {
+  .login-card .card-body {
+    padding: 1.75rem !important;
+  }
+}
