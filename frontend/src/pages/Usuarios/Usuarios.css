@@ -1,0 +1,28 @@
+.usuarios-page {
+  background-color: #f8f9fa;
+}
+
+.usuarios-page .navbar {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.usuarios-page .table th {
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #6c757d;
+}
+
+.usuarios-page .table td {
+  vertical-align: middle;
+}
+
+.usuarios-page .btn-sm {
+  min-width: 70px;
+}
+
+/* Modal */
+.modal.show {
+  display: block;
+}

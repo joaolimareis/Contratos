@@ -1,0 +1,23 @@
+.imoveis-page {
+  background-color: #f8f9fa;
+}
+
+.imoveis-page .navbar {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.imoveis-page .table th {
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #6c757d;
+}
+
+.imoveis-page .table td {
+  vertical-align: middle;
+}
+
+.imoveis-page .btn-sm {
+  min-width: 70px;
+}

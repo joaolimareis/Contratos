@@ -1,0 +1,23 @@
+.contratos-page {
+  background-color: #f8f9fa;
+}
+
+.contratos-page .navbar {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.contratos-page .table th {
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #6c757d;
+}
+
+.contratos-page .table td {
+  vertical-align: middle;
+}
+
+.contratos-page .btn-sm {
+  min-width: 70px;
+}

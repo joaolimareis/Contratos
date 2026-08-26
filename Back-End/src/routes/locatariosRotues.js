@@ -43,25 +43,6 @@ router.put(
 );
 
 
-/**
- * @swagger
- * /api/locatarios/{id}:
- *   delete:
- *     summary: Delete a locatario by ID
- *     tags: [Locatarios]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The locatario ID
- *     responses:
- *       200:
- *         description: Locatario deleted successfully
- *       404:
- *         description: Locatario not found
- */
 router.delete(
   "/locatarios/:id",
   deleteLocatariosController

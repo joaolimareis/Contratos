@@ -1,0 +1,23 @@
+.locador-page {
+  background-color: #f8f9fa;
+}
+
+.locador-page .navbar {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.locador-page .table th {
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #6c757d;
+}
+
+.locador-page .table td {
+  vertical-align: middle;
+}
+
+.locador-page .btn-sm {
+  min-width: 70px;
+}

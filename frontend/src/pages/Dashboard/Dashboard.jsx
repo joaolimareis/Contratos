@@ -5,7 +5,7 @@ function Dashboard() {
 
   function handleLogout() {
    
-    navigate("/login");
+    navigate("/");
   }
 
   return (
@@ -37,6 +37,25 @@ function Dashboard() {
                 <p className="text-muted mb-0">
                   Você está autenticado com sucesso.
                 </p>
+                <button
+  className="btn btn-outline-primary btn-sm"
+  onClick={() => navigate("/usuarios")}
+>
+  Usuários
+</button>
+               <button
+  className="btn btn-outline-primary btn-sm"
+  onClick={() => navigate("/locador")}
+>
+  Locador
+</button>
+               <button
+  className="btn btn-outline-primary btn-sm"
+  onClick={() => navigate("/locatarios")}
+>
+  Locatários
+</button>
+          
               </div>
             </div>
           </div>
