@@ -1,6 +1,10 @@
-import Recebimentos from "../models/recebimentos.js";
-import Contratos from "../models/contratos.js";
-
+import {
+  Recebimentos,
+  Contratos,
+  Locatarios,
+  Imoveis,
+  Locador
+} from "../models/index.js";
 
 export const createRecebimentoService = async (
   contrato_id,
@@ -8,7 +12,8 @@ export const createRecebimentoService = async (
   data_pagamento,
   valor_cobrado,
   valor_recebido,
-  status
+  status,
+  numero_recibo
 ) => {
 
   const contrato = await Contratos.findByPk(contrato_id);
@@ -17,14 +22,15 @@ export const createRecebimentoService = async (
     throw new Error("Contrato not found");
   }
 
-  const newRecebimento = await Recebimentos.create({
-    contrato_id,
-    data_vencimento,
-    data_pagamento,
-    valor_cobrado,
-    valor_recebido,
-    status
-  });
+ const newRecebimento = await Recebimentos.create({
+  contrato_id,
+  data_vencimento,
+  data_pagamento,
+  valor_cobrado,
+  valor_recebido,
+  status,
+  numero_recibo
+});
 
   return newRecebimento;
 };
@@ -67,7 +73,8 @@ export const updateRecebimentoService = async (
   data_pagamento,
   valor_cobrado,
   valor_recebido,
-  status
+  status,
+  numero_recibo
 ) => {
 
   const recebimento = await Recebimentos.findByPk(id);
@@ -88,14 +95,15 @@ export const updateRecebimentoService = async (
   }
 
 
-  await recebimento.update({
-    contrato_id,
-    data_vencimento,
-    data_pagamento,
-    valor_cobrado,
-    valor_recebido,
-    status
-  });
+ await recebimento.update({
+  contrato_id,
+  data_vencimento,
+  data_pagamento,
+  valor_cobrado,
+  valor_recebido,
+  status,
+  numero_recibo
+});
 
 
   return recebimento;
@@ -114,6 +122,64 @@ export const deleteRecebimentoService = async (id) => {
 
   return recebimento;
 };
+export async function getRecebimentoComDadosParaReciboService(id) {
+
+  const recebimento = await Recebimentos.findByPk(id, {
+
+    include: [
+
+      {
+        model: Contratos,
+        as: "contrato",
+
+        include: [
+
+          {
+            model: Locatarios,
+            as: "locatario",
+
+            attributes: [
+              "id",
+              "nome_locatario"
+            ]
+          },
+
+          {
+            model: Imoveis,
+            as: "imovel",
+
+            attributes: [
+              "id",
+              "endereco",
+              "numero"
+            ],
+
+            include: [
+
+              {
+                model: Locador,
+                as: "locador",
+
+                attributes: [
+                  "id",
+                  "nome_locador"
+                ]
+              }
+
+            ]
+
+          }
+
+        ]
+
+      }
+
+    ]
+
+  });
+
+  return recebimento;
+}
 
 
 export default {

@@ -154,38 +154,37 @@ export const updateImovelController = async (req, res, next) => {
 
 
 export const deleteImovelController = async (req, res, next) => {
-
   try {
+    const resultado = await deleteImovelService(req.params.id);
 
-    const deletedImovel = await deleteImovelService(
-      req.params.id
-    );
-
-
-    if (!deletedImovel) {
-
+    if (resultado.reason === "NOT_FOUND") {
       return handleResponse(
         res,
         404,
-        "Imovel not found"
+        "Imóvel não encontrado"
       );
-
     }
 
+    if (resultado.reason === "HAS_CONTRACTS") {
+      return handleResponse(
+        res,
+        409,
+        "Não é possível excluir o imóvel porque existem contratos vinculados a ele"
+      );
+    }
 
     return handleResponse(
       res,
       200,
-      "Imovel deleted success",
-      deletedImovel
+      "Imóvel excluído com sucesso"
     );
 
   } catch (err) {
+    console.error("ERRO AO DELETAR IMÓVEL:");
+    console.error(err);
 
     next(err);
-
   }
-
 };
 
 

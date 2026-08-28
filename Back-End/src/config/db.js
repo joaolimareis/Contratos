@@ -2,7 +2,7 @@ import { Sequelize } from "sequelize";
 import pg from "pg";
 import "dotenv/config";
 
-const isNeon = process.env.DB_PROVIDER === "neon" || process.env.DATABASE_URL?.includes("neon.tech");
+const isNeon = process.env.DB_PROVIDER === "neon";
 
 const sequelize = isNeon
   ? new Sequelize(process.env.DATABASE_URL, {
@@ -12,9 +12,9 @@ const sequelize = isNeon
       dialectOptions: {
         ssl: {
           require: true,
-          rejectUnauthorized: true, 
-        },
-      },
+          rejectUnauthorized: true
+        }
+      }
     })
   : new Sequelize(
       process.env.DB_NAME,
@@ -25,7 +25,7 @@ const sequelize = isNeon
         port: process.env.DB_PORT || 5432,
         dialect: "postgres",
         dialectModule: pg,
-        logging: false,
+        logging: false
       }
     );
 

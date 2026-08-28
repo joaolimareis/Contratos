@@ -3,8 +3,13 @@ import {
   getAllRecebimentosService,
   getRecebimentoByIdService,
   updateRecebimentoService,
-  deleteRecebimentoService
+  deleteRecebimentoService,
+  getRecebimentoComDadosParaReciboService
 } from "../service/recebimentosService.js";
+
+import { generatePdfFromHtml } from "../service/pdfService.js";
+
+import { reciboTemplate } from "../templates/recibo.template.js";
 
 import handleResponse from "../utils/handleError.js";
 
@@ -13,24 +18,25 @@ export const createRecebimentoController = async (req, res, next) => {
 
   try {
 
-    const {
-      contrato_id,
-      data_vencimento,
-      data_pagamento,
-      valor_cobrado,
-      valor_recebido,
-      status
-    } = req.body;
+   const {
+  contrato_id,
+  data_vencimento,
+  data_pagamento,
+  valor_cobrado,
+  valor_recebido,
+  status,
+  numero_recibo
+} = req.body;
 
-
-    const newRecebimento = await createRecebimentoService(
-      contrato_id,
-      data_vencimento,
-      data_pagamento,
-      valor_cobrado,
-      valor_recebido,
-      status
-    );
+   const newRecebimento = await createRecebimentoService(
+  contrato_id,
+  data_vencimento,
+  data_pagamento,
+  valor_cobrado,
+  valor_recebido,
+  status,
+  numero_recibo
+);
 
 
     return handleResponse(
@@ -114,26 +120,27 @@ export const updateRecebimentoController = async (req, res, next) => {
 
     const { id } = req.params;
 
-    const {
-      contrato_id,
-      data_vencimento,
-      data_pagamento,
-      valor_cobrado,
-      valor_recebido,
-      status
-    } = req.body;
+ const {
+  contrato_id,
+  data_vencimento,
+  data_pagamento,
+  valor_cobrado,
+  valor_recebido,
+  status,
+  numero_recibo
+} = req.body;
 
 
-    const updatedRecebimento = await updateRecebimentoService(
-      id,
-      contrato_id,
-      data_vencimento,
-      data_pagamento,
-      valor_cobrado,
-      valor_recebido,
-      status
-    );
-
+   const updatedRecebimento = await updateRecebimentoService(
+  id,
+  contrato_id,
+  data_vencimento,
+  data_pagamento,
+  valor_cobrado,
+  valor_recebido,
+  status,
+  numero_recibo
+);
 
     if (!updatedRecebimento) {
 
@@ -196,12 +203,80 @@ export const deleteRecebimentoController = async (req, res, next) => {
   }
 
 };
+export const gerarReciboController = async (
+  req,
+  res,
+  next
+) => {
+  try {
 
+    const { id } = req.params;
+
+    const recebimento =
+      await getRecebimentoComDadosParaReciboService(
+        id
+      );
+
+    if (!recebimento) {
+
+      return handleResponse(
+        res,
+        404,
+        "Recebimento not found"
+      );
+
+    }
+
+    if (recebimento.status !== "pago") {
+
+      return handleResponse(
+        res,
+        400,
+        "Só é possível gerar recibo para recebimentos pagos."
+      );
+
+    }
+
+    if (!recebimento.valor_recebido) {
+
+      return handleResponse(
+        res,
+        400,
+        "O recebimento não possui valor recebido."
+      );
+
+    }
+
+    const html =
+      reciboTemplate(recebimento);
+
+    const pdf =
+      await generatePdfFromHtml(html);
+
+    res.setHeader(
+      "Content-Type",
+      "application/pdf"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="recibo-${recebimento.id}.pdf"`
+    );
+
+    res.send(pdf);
+
+  } catch (err) {
+
+    next(err);
+
+  }
+};
 
 export default {
   createRecebimentoController,
   getAllRecebimentosController,
   getRecebimentoByIdController,
   updateRecebimentoController,
-  deleteRecebimentoController
+  deleteRecebimentoController,
+  gerarReciboController
 };

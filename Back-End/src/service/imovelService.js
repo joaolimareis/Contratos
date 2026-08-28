@@ -1,6 +1,6 @@
 import Imoveis from "../models/imoveis.js";
 import Locador from "../models/locador.js";
-
+import Contratos from "../models/contratos.js";
 
 export const createImovelService = async (
   locador_id,
@@ -91,18 +91,36 @@ export const updateImovelService = async (
 
 
 export const deleteImovelService = async (id) => {
-
   const imovel = await Imoveis.findByPk(id);
 
   if (!imovel) {
-    return null;
+    return {
+      deleted: false,
+      reason: "NOT_FOUND"
+    };
+  }
+
+  const contratos = await Contratos.count({
+    where: {
+      imovel_id: id
+    }
+  });
+
+  if (contratos > 0) {
+    return {
+      deleted: false,
+      reason: "HAS_CONTRACTS",
+      contratos
+    };
   }
 
   await imovel.destroy();
 
-  return imovel;
+  return {
+    deleted: true,
+    reason: null
+  };
 };
-
 
 export default {
   createImovelService,

@@ -49,6 +49,11 @@ export default class Recebimentos extends Model {
         type: DataTypes.STRING(20),
         allowNull: true,
         defaultValue: "pendente"
+      },
+
+      numero_recibo: {
+        type: DataTypes.STRING(50),
+        allowNull: true
       }
 
     }, {
@@ -74,7 +79,6 @@ export default class Recebimentos extends Model {
     });
 
   }
-
 
   static associate(models) {
 

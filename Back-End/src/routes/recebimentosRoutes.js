@@ -5,13 +5,17 @@ import {
   getAllRecebimentosController,
   getRecebimentoByIdController,
   updateRecebimentoController,
-  deleteRecebimentoController
+  deleteRecebimentoController,
+  gerarReciboController
 } from "../controllers/recebimentosControllers.js";
 
 import validateRecebimentos from "../middlewares/recebimentoValidador.js";
 
 
+
 const router = express.Router();
+
+
 /**
  * @swagger
  * tags:  
@@ -68,7 +72,10 @@ router.get(
   "/recebimentos/:id",
   getRecebimentoByIdController
 );
-
+router.get(
+  "/recebimentos/:id/recibo",
+  gerarReciboController
+);
 
 router.put(
   "/recebimentos/:id",

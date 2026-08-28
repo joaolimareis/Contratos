@@ -20,14 +20,14 @@ export const getByIdLocadorService = async (id) => {
     })
     return locadorId
 };
+export const updateLocadorService = async (id, dadosLocador) => {
+    const updateLocador = await Locador.update(dadosLocador, {
+        where: {
+            id
+        }
+    });
 
-export const updateLocadorService = async ( dadosLocador) => {
-  const updateLocador = await Locador.update(dadosLocador,{
-    where: {
-        id,
-    }
-  });
-  return updateLocador
+    return updateLocador;
 };
 
 export const deleteLocadorService = async (id) => {
@@ -35,8 +35,10 @@ export const deleteLocadorService = async (id) => {
         where: {
             id
         }
-    })
-}
+    });
+
+    return deleteLocadorId;
+};
 
 export default {
     createLocadorService,
