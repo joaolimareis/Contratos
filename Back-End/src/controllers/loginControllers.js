@@ -1,13 +1,16 @@
-import handleResponse  from "../utils/handleError.js";
+import handleResponse from "../utils/handleError.js";
 import { loginService } from "../service/loginService.js";
+import AppError from "../utils/statusCode.js";
 
 export const loginController = async (req, res, next) => {
-
   try {
     const { email, senha } = req.body;
 
     if (!email || !senha) {
-      throw new Error("Email e senha são obrigatórios");
+      throw new AppError(
+        "Email e senha são obrigatórios",
+        400
+      );
     }
 
     const resultado = await loginService(email, senha);
@@ -16,19 +19,18 @@ export const loginController = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 3600000, 
+      maxAge: 3600000,
     });
+
     return handleResponse(
       res,
       200,
       "Login realizado com sucesso",
       resultado
     );
-
   } catch (err) {
     next(err);
   }
 };
 
-
-export default loginController
+export default loginController;

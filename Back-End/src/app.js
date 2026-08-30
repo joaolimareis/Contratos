@@ -102,6 +102,7 @@ app.get("/api/health", (req, res) => {
     message: "Backend funcionando",
   });
 });
+app.use(errorHandling);
 
 app.use("/api", usuariosRoutes);
 
@@ -118,6 +119,5 @@ app.use("/api", recebimentosRoutes);
 app.use("/api", loginRoutes);
 
 
-app.use(errorHandling);
 
 export default app;
