@@ -1,117 +1,110 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../services/api";
-import bgImage from "../../assets/teste5.jpg"; // salve a imagem com esse nome ou ajuste o caminho
+import { useAuth } from "../../context/AuthContext";
 import "./Login.css";
+const backgroundImages = [
+  "/imagens/predio1.jpg", // a primeira foto
+  "/imagens/predio2.jpg", // a segunda foto
+  "/imagens/predio3.jpg", // a terceira foto
+  "/imagens/predio4.jpg", // a quarta foto
+  "/imagens/predio5.jpg", // a quinta foto
 
+];
 function Login() {
+   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [currentImage, setCurrentImage] = useState(0);
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    setError("");
-    setLoading(true);
+  // Carrossel automático
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % backgroundImages.length);
+    }, 6000); // troca a cada 6 segundos
 
-    try {
-      await api.post("/login", {
-        email,
-        senha: password,
-      });
+    return () => clearInterval(interval);
+  }, []);
 
-      const me = await api.get("/me");
-      console.log("USUÁRIO AUTENTICADO:", me.data);
+async function handleSubmit(e) {
+  e.preventDefault();
 
-      navigate("/dashboard");
-    } catch (err) {
-      console.error("ERRO COMPLETO:", err);
+  setError("");
+  setLoading(true);
 
-      const status = err.response?.status;
-      const message = err.response?.data?.message;
+  try {
+    await login(email, password);
 
-      if (status === 404) {
-        setError(message || "Usuário não encontrado.");
-      } else if (status === 401) {
-        setError(message || "Email ou senha inválidos.");
-      } else if (status === 400) {
-        setError(message || "Dados inválidos.");
-      } else if (status >= 500) {
-        setError("Erro interno do servidor. Tente novamente mais tarde.");
-      } else if (err.request) {
-        setError("Não foi possível conectar ao servidor.");
-      } else {
-        setError("Ocorreu um erro ao fazer login.");
-      }
-    } finally {
-      setLoading(false);
+    navigate("/dashboard");
+  } catch (err) {
+    console.error("ERRO NO LOGIN:", err);
+
+    const status = err.response?.status;
+    const message = err.response?.data?.message;
+
+    if (status === 401) {
+      setError(message || "E-mail ou senha inválidos.");
+    } else if (status === 400) {
+      setError(message || "E-mail e senha são obrigatórios.");
+    } else if (status >= 500) {
+      setError(
+        "Erro interno do servidor. Tente novamente mais tarde."
+      );
+    } else if (err.request) {
+      setError(
+        "Não foi possível conectar ao servidor."
+      );
+    } else {
+      setError(
+        "Ocorreu um erro ao fazer login."
+      );
     }
+  } finally {
+    setLoading(false);
   }
-
+}
   return (
     <div className="login-page">
-      {/* Lado esquerdo - Visual */}
-      <div
-        className="login-visual"
-        style={{ backgroundImage: `url(${bgImage})` }}
-      >
-        <div className="login-visual-overlay">
-          <div className="login-brand">
-            <div className="brand-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 2L3 7v10l9 5 9-5V7l-9-5Z"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M12 12L3 7m9 5l9-5m-9 5v10"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <h2>Contratos</h2>
-            <p>Gerenciamento de contratos imobiliários.</p>
-          </div>
-        </div>
+      {/* ===== Background Carousel ===== */}
+      <div className="login-bg">
+        {backgroundImages.map((src, index) => (
+          <div
+            key={index}
+            className={`login-bg-slide ${index === currentImage ? "active" : ""}`}
+            style={{ backgroundImage: `url(${src})` }}
+          />
+        ))}
+        <div className="login-bg-overlay" />
       </div>
 
-      {/* Lado direito - Formulário */}
-      <div className="login-form-side">
-        <div className="login-form-container">
-          <header className="login-header">
-            <h1>Entrar</h1>
-            <p>Preencha seus dados para continuar</p>
-          </header>
+      {/* ===== Formulário ===== */}
+      <div className="login-form-wrapper">
+        <div className="login-card">
+          <div className="login-header">
+          <div className="brand-icon">
+  <img src="/logo-J.svg" alt="Contratos" className="logo-img" />
+</div>
+            <h1>Bem-vindo</h1>
+            <p>Acesse o sistema de gestão de contratos</p>
+          </div>
 
-          <form className="login-form" onSubmit={handleSubmit} noValidate>
+          <form className="login-form" onSubmit={handleSubmit}>
+            {error && <div className="error-message">{error}</div>}
+
             <div className="form-group">
               <label htmlFor="email">E-mail</label>
               <div className="input-wrapper">
-                <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
-                  <path
-                    d="M3.5 6.5l8.5 6 8.5-6"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                  />
+                <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
                 </svg>
                 <input
                   id="email"
                   type="email"
-                  placeholder="voce@exemplo.com"
+                  placeholder="seu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -124,21 +117,9 @@ function Login() {
             <div className="form-group">
               <label htmlFor="password">Senha</label>
               <div className="input-wrapper">
-                <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <rect
-                    x="5"
-                    y="10"
-                    width="14"
-                    height="10"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
-                  <path
-                    d="M8 10V7a4 4 0 118 0v3"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
+                <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
                 <input
                   id="password"
@@ -153,32 +134,12 @@ function Login() {
                 <button
                   type="button"
                   className="toggle-password"
-                  onClick={() => setShowPassword((v) => !v)}
+                  onClick={() => setShowPassword(!showPassword)}
                   disabled={loading}
-                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 >
                   {showPassword ? "Ocultar" : "Mostrar"}
                 </button>
               </div>
-            </div>
-
-            {error && (
-              <div className="error-message" role="alert">
-                {error}
-              </div>
-            )}
-
-            <div className="form-options">
-              <label className="remember-me">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  disabled={loading}
-                />
-                <span className="checkbox-custom" />
-                <span>Lembrar de mim</span>
-              </label>
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>

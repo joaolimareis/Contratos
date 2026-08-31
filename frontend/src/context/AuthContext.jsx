@@ -18,12 +18,27 @@ export function AuthProvider({ children }) {
       const response = await api.get("/me");
 
       setUsuario(response.data.usuario);
-
     } catch (error) {
       setUsuario(null);
-
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function login(email, senha) {
+    await api.post("/login", {
+      email,
+      senha,
+    });
+
+    await verificarUsuario();
+  }
+
+  async function logout() {
+    try {
+      await api.post("/logout");
+    } finally {
+      setUsuario(null);
     }
   }
 
@@ -36,6 +51,8 @@ export function AuthProvider({ children }) {
       value={{
         usuario,
         loading,
+        login,
+        logout,
         verificarUsuario,
       }}
     >

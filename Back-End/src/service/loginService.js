@@ -19,7 +19,10 @@ export const loginService = async (email, senha) => {
   const usuario = await findUsuarioByEmailService(email);
 
   if (!usuario) {
-    throw new AppError("Email ou senha inválidos", 401);
+    throw new AppError(
+      "Email ou senha inválidos",
+      401
+    );
   }
 
   const senhaValida = await bcrypt.compare(
@@ -28,7 +31,10 @@ export const loginService = async (email, senha) => {
   );
 
   if (!senhaValida) {
-    throw new AppError("Email ou senha inválidos", 401);
+    throw new AppError(
+      "Email ou senha inválidos",
+      401
+    );
   }
 
   const token = jwt.sign(

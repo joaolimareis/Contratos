@@ -1,0 +1,53 @@
+.app-layout {
+  min-height: 100dvh;
+  background: var(--bg-dark, #0a0908);
+  color: var(--text, #f2efe9);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+}
+
+.app-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f3f4f6 !important;   /* cinza bem claro */
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-wrapper:focus-within {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  background: #fff !important;
+}
+
+.input-wrapper input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.9rem 0.85rem;
+  background: transparent !important;
+  border: none;
+  outline: none;
+  color: #1a1f2e !important;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.input-wrapper input::placeholder {
+  color: #9ca3af;
+}
+
+/* Autofill (Chrome) */
+.input-wrapper input:-webkit-autofill,
+.input-wrapper input:-webkit-autofill:hover,
+.input-wrapper input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #f3f4f6 inset !important;
+  -webkit-text-fill-color: #1a1f2e !important;
+  transition: background-color 5000s ease-in-out 0s;
+}

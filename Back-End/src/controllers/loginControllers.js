@@ -15,19 +15,26 @@ export const loginController = async (req, res, next) => {
 
     const resultado = await loginService(email, senha);
 
-    res.cookie("token", resultado.token, {
+    console.log("LOGIN REALIZADO");
+    console.log("TOKEN GERADO:", !!resultado.token);
+
+    res.cookie("contratos_token", resultado.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 3600000,
+      path: "/",
     });
 
     return handleResponse(
       res,
       200,
       "Login realizado com sucesso",
-      resultado
+      {
+        usuario: resultado.usuario,
+      }
     );
+
   } catch (err) {
     next(err);
   }

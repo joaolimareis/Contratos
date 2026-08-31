@@ -1,0 +1,49 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f2d9a1"/>
+      <stop offset="45%" stop-color="#e7b65b"/>
+      <stop offset="100%" stop-color="#c8933a"/>
+    </linearGradient>
+
+    <radialGradient id="bgGlow" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#171b23"/>
+      <stop offset="100%" stop-color="#0e1116"/>
+    </radialGradient>
+
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- Fundo -->
+  <rect width="400" height="400" rx="48" fill="url(#bgGlow)"/>
+
+  <!-- Painel interno translúcido -->
+  <rect x="24" y="24" width="352" height="352" rx="36"
+        fill="rgba(18,21,28,0.62)"
+        stroke="rgba(231,182,91,0.16)" stroke-width="1.5"/>
+
+  <!-- Anel decorativo fino -->
+  <circle cx="200" cy="200" r="146"
+          fill="none" stroke="rgba(231,182,91,0.35)" stroke-width="1"/>
+
+  <!-- Letra J estilizada -->
+  <g filter="url(#softShadow)">
+    <text x="200" y="256"
+          text-anchor="middle"
+          font-family="Fraunces, Georgia, serif"
+          font-size="220"
+          font-weight="600"
+          fill="url(#goldGrad)"
+          letter-spacing="0">J</text>
+  </g>
+
+  <!-- Traço/serifa inferior decorativa -->
+  <path d="M 150 288 Q 200 302 250 288"
+        stroke="#e7b65b" stroke-opacity="0.55"
+        stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Pontos ornamentais -->
+  <circle cx="200" cy="90" r="3" fill="#e7b65b" opacity="0.7"/>
+</svg>
