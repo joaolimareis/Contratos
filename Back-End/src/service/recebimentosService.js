@@ -42,15 +42,20 @@ export const getAllRecebimentosService = async () => {
     include: [
       {
         model: Contratos,
-        as: "contrato"
+        as: "contrato",
+        include: [
+          {
+            model: Locatarios,
+            as: "locatario",
+            attributes: ["id", "nome_locatario"]
+          }
+        ]
       }
     ]
   });
 
   return recebimentos;
 };
-
-
 export const getRecebimentoByIdService = async (id) => {
 
   const recebimento = await Recebimentos.findByPk(id, {

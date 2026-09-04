@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
@@ -280,15 +279,27 @@ function Recebimentos() {
     navigate("/");
   }
 
-  function getContratoLabel(id) {
-    const contrato =
-      contratos.find(
-        (c) => c.id === id
-      );
+  // Agora recebe o item completo (com contrato e locatário já
+  // aninhados pelo backend), em vez de buscar em arrays separados.
+  function getContratoLabel(item) {
+    if (!item.contrato) {
+      return `ID ${item.contrato_id}`;
+    }
 
-    return contrato
-      ? `Contrato #${contrato.id}`
-      : `ID ${id}`;
+    return `Contrato #${item.contrato.id}`;
+  }
+
+  function getLocatarioLabel(item) {
+    const locatario = item.contrato?.locatario;
+
+    if (!locatario) {
+      return "-";
+    }
+
+    return (
+      locatario.nome_locatario ||
+      `Locatário #${locatario.id}`
+    );
   }
 
   function formatCurrency(value) {
@@ -554,6 +565,10 @@ function Recebimentos() {
                       </th>
 
                       <th>
+                        Locatário
+                      </th>
+
+                      <th>
                         Vencimento
                       </th>
 
@@ -600,9 +615,11 @@ function Recebimentos() {
                           </td>
 
                           <td>
-                            {getContratoLabel(
-                              item.contrato_id
-                            )}
+                            {getContratoLabel(item)}
+                          </td>
+
+                          <td>
+                            {getLocatarioLabel(item)}
                           </td>
 
                           <td>

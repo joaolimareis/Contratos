@@ -45,7 +45,6 @@
   background-repeat: no-repeat;
   opacity: 0;
   transition: opacity 1.4s ease-in-out;
-  /* Garante cobertura correta em qualquer tela */
   width: 100%;
   height: 100%;
 }
@@ -142,6 +141,8 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+  min-height: 48px; /* altura consistente */
 }
 
 .input-wrapper:focus-within {
@@ -149,28 +150,42 @@
   box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
 }
 
+/* Ícone perfeitamente centralizado */
 .input-icon {
   flex-shrink: 0;
   margin-left: 0.9rem;
   color: #9ca3af;
+  display: block;          /* importante para SVG */
+  width: 18px;
+  height: 18px;
 }
 
+/* Input limpo e alinhado */
 .input-wrapper input {
   flex: 1;
   min-width: 0;
-  padding: 0.9rem 0.85rem;
+  padding: 0.85rem 0.85rem;
   background: transparent;
-  border: none;
-  outline: none;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none;
+  appearance: none;
   color: var(--text);
   font-size: 0.95rem;
   font-family: inherit;
+  line-height: 1.4;
 }
 
-.input-wrapper input::placeholder {
-  color: #9ca3af;
+.input-wrapper input:focus,
+.input-wrapper input:focus-visible,
+.input-wrapper input:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
+/* Botão Mostrar/Ocultar também alinhado */
 .toggle-password {
   flex-shrink: 0;
   margin-right: 0.75rem;
@@ -182,6 +197,7 @@
   cursor: pointer;
   padding: 0.3rem 0.4rem;
   transition: color 0.15s ease;
+  line-height: 1;
 }
 
 .toggle-password:hover:not(:disabled) {
@@ -195,7 +211,7 @@
 
 /* Erro */
 .error-message {
-  background: rgba(220, 38, hid, 0.08);
+  background: rgba(220, 38, 38, 0.08);
   border: 1px solid rgba(220, 38, 38, 0.2);
   color: var(--danger);
   font-size: 0.85rem;

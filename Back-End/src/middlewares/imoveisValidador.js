@@ -3,7 +3,7 @@ import joi from "joi";
 const imoveisSchema = joi.object({
   locador_id: joi.number().integer().required(),
   endereco: joi.string().required(),
-  numero: joi.number(),
+  numero: joi.string(),
   status: joi.boolean(),
 })
 
