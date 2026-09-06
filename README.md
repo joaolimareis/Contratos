@@ -52,5 +52,3 @@ Utilizado para criação e gerenciamento do ambiente da aplicação, facilitando
 ### Swagger UI
 
 Utilizado para documentação da API e realização de testes diretamente pelo navegador.
-
-Este projeto está disponível para estudos, testes e aprendizado.
