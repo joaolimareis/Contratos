@@ -89,18 +89,22 @@
 }
 
 .brand-icon {
-  width: 52px;
-  height: 52px;
-  margin: 0 auto 1.2rem;
-  border-radius: 14px;
-  background: rgba(15, 118, 110, 0.1);
-  border: 1px solid rgba(15, 118, 110, 0.2);
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent);
+  background: transparent;   
+  border: none;              
 }
 
+.logo-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  display: block;
+}
 .login-header h1 {
   font-size: 1.7rem;
   font-weight: 700;

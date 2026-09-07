@@ -1,16 +1,16 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import "./styles/variables.css";
-import "./styles/global.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-
-import App from "./App";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { AuthProvider } from "./context/AuthContext";
+import App from "./App.jsx";
+import "./index.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+// O <BrowserRouter> já deve estar dentro do seu App.jsx (é ele que
+// faz o Login funcionar com useNavigate). Por isso ele NÃO entra
+// aqui — só pode existir um <Router> em toda a árvore do app.
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
     <AuthProvider>
       <App />
     </AuthProvider>
-  </React.StrictMode>
+  </StrictMode>
 );

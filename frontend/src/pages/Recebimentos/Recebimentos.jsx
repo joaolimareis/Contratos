@@ -1,24 +1,35 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import "./Recebimentos.css";
 
-function Recebimentos() {
-  const navigate = useNavigate();
+function formatDate(value) {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString("pt-BR");
+}
 
+function formatMoney(value) {
+  return Number(value ?? 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+
+function Recebimentos() {
   const [recebimentos, setRecebimentos] = useState([]);
   const [contratos, setContratos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Modal
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [reciboLoading, setReciboLoading] = useState(null); // id do recibo que está gerando
 
-  // Campos do formulário
+  // campos do formulário
   const [contrato_id, setContratoId] = useState("");
   const [numero_recibo, setNumeroRecibo] = useState("");
   const [data_vencimento, setDataVencimento] = useState("");
@@ -30,19 +41,11 @@ function Recebimentos() {
   async function loadRecebimentos() {
     setLoading(true);
     setError("");
-
     try {
       const response = await api.get("/recebimentos");
-
-      setRecebimentos(
-        response.data.data || response.data
-      );
-
+      setRecebimentos(response.data.data || response.data || []);
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        "Erro ao carregar recebimentos."
-      );
+      setError(err.response?.data?.message || "Não foi possível carregar os recebimentos.");
     } finally {
       setLoading(false);
     }
@@ -51,55 +54,9 @@ function Recebimentos() {
   async function loadContratos() {
     try {
       const response = await api.get("/contratos");
-
-      setContratos(
-        response.data.data || response.data
-      );
-
+      setContratos(response.data.data || response.data || []);
     } catch (err) {
-      console.error(
-        "Erro ao carregar contratos:",
-        err
-      );
-    }
-  }
-
-  async function handleGerarRecibo(recebimento) {
-    try {
-      setError("");
-
-      const response = await api.get(
-        `/recebimentos/${recebimento.id}/recibo`,
-        {
-          responseType: "blob",
-        }
-      );
-
-      const blob = new Blob(
-        [response.data],
-        {
-          type: "application/pdf",
-        }
-      );
-
-      const url =
-        window.URL.createObjectURL(blob);
-
-      window.open(url, "_blank");
-
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-      }, 10000);
-
-    } catch (err) {
-      console.error(
-        "Erro ao gerar recibo:",
-        err
-      );
-
-      setError(
-        "Erro ao gerar recibo."
-      );
+      console.error("Erro ao carregar contratos:", err);
     }
   }
 
@@ -127,41 +84,16 @@ function Recebimentos() {
     setSuccess("");
   }
 
-  function openEditModal(recebimento) {
+  function openEditModal(item) {
     setIsEditing(true);
-
-    setCurrentId(
-      recebimento.id
-    );
-
-    setContratoId(
-      recebimento.contrato_id || ""
-    );
-
-    setNumeroRecibo(
-      recebimento.numero_recibo || ""
-    );
-
-    setDataVencimento(
-      recebimento.data_vencimento || ""
-    );
-
-    setDataPagamento(
-      recebimento.data_pagamento || ""
-    );
-
-    setValorCobrado(
-      recebimento.valor_cobrado || ""
-    );
-
-    setValorRecebido(
-      recebimento.valor_recebido || ""
-    );
-
-    setStatus(
-      recebimento.status || "pendente"
-    );
-
+    setCurrentId(item.id);
+    setContratoId(item.contrato_id || "");
+    setNumeroRecibo(item.numero_recibo || item.n_recibo || "");
+    setDataVencimento(item.data_vencimento ? String(item.data_vencimento).slice(0, 10) : "");
+    setDataPagamento(item.data_pagamento ? String(item.data_pagamento).slice(0, 10) : "");
+    setValorCobrado(item.valor_cobrado ?? "");
+    setValorRecebido(item.valor_recebido ?? "");
+    setStatus(item.status || "pendente");
     setShowModal(true);
     setError("");
     setSuccess("");
@@ -174,895 +106,351 @@ function Recebimentos() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
     setFormLoading(true);
     setError("");
     setSuccess("");
 
     const payload = {
       contrato_id: Number(contrato_id),
-
-      numero_recibo:
-        numero_recibo || null,
-
-      data_vencimento,
-
-      data_pagamento:
-        data_pagamento || null,
-
-      valor_cobrado:
-        Number(valor_cobrado),
-
-      valor_recebido:
-        valor_recebido
-          ? Number(valor_recebido)
-          : null,
-
+      numero_recibo: numero_recibo || null,
+      data_vencimento: data_vencimento || null,
+      data_pagamento: data_pagamento || null,
+      valor_cobrado: Number(valor_cobrado) || 0,
+      valor_recebido: Number(valor_recebido) || 0,
       status,
     };
 
     try {
-
       if (isEditing) {
-
-        await api.put(
-          `/recebimentos/${currentId}`,
-          payload
-        );
-
-        setSuccess(
-          "Recebimento atualizado com sucesso!"
-        );
-
+        await api.put(`/recebimentos/${currentId}`, payload);
+        setSuccess("Recebimento atualizado com sucesso.");
       } else {
-
-        await api.post(
-          "/recebimentos",
-          payload
-        );
-
-        setSuccess(
-          "Recebimento criado com sucesso!"
-        );
+        await api.post("/recebimentos", payload);
+        setSuccess("Recebimento criado com sucesso.");
       }
-
       closeModal();
-
       loadRecebimentos();
-
     } catch (err) {
-
-      setError(
-        err.response?.data?.message ||
-        "Erro ao salvar recebimento."
-      );
-
+      setError(err.response?.data?.message || "Erro ao salvar o recebimento.");
     } finally {
-
       setFormLoading(false);
-
     }
   }
 
   async function handleDelete(id) {
-    if (
-      !window.confirm(
-        "Tem certeza que deseja excluir este recebimento?"
-      )
-    ) {
-      return;
-    }
+    if (!window.confirm("Tem certeza que deseja excluir este recebimento?")) return;
 
     try {
-
-      await api.delete(
-        `/recebimentos/${id}`
-      );
-
-      setSuccess(
-        "Recebimento excluído com sucesso!"
-      );
-
+      await api.delete(`/recebimentos/${id}`);
+      setSuccess("Recebimento excluído com sucesso.");
       loadRecebimentos();
-
     } catch (err) {
-
-      setError(
-        err.response?.data?.message ||
-        "Erro ao excluir recebimento."
-      );
-
+      setError(err.response?.data?.message || "Erro ao excluir o recebimento.");
     }
   }
 
-  function handleLogout() {
-    navigate("/");
-  }
+  // ===== GERAR RECIBO (PDF) =====
+  async function handleGerarRecibo(item) {
+    setReciboLoading(item.id);
+    setError("");
 
-  // Agora recebe o item completo (com contrato e locatário já
-  // aninhados pelo backend), em vez de buscar em arrays separados.
-  function getContratoLabel(item) {
-    if (!item.contrato) {
-      return `ID ${item.contrato_id}`;
-    }
+    try {
+      const response = await api.get(`/recebimentos/${item.id}/recibo`, {
+        responseType: "blob", // importante para PDF
+      });
 
-    return `Contrato #${item.contrato.id}`;
-  }
+      // Cria URL do blob e abre em nova aba
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
 
-  function getLocatarioLabel(item) {
-    const locatario = item.contrato?.locatario;
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
 
-    if (!locatario) {
-      return "-";
-    }
+      // Também oferece download com nome amigável
+      const numero = item.numero_recibo || item.id;
+      link.download = `recibo-${numero}.pdf`;
 
-    return (
-      locatario.nome_locatario ||
-      `Locatário #${locatario.id}`
-    );
-  }
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-  function formatCurrency(value) {
+      // Libera a memória
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      console.error("Erro ao gerar recibo:", err);
 
-    if (
-      value === null ||
-      value === undefined ||
-      value === ""
-    ) {
-      return "-";
-    }
-
-    return Number(value).toLocaleString(
-      "pt-BR",
-      {
-        style: "currency",
-        currency: "BRL",
+      if (err.response?.status === 404) {
+        setError("Rota de recibo não encontrada no servidor (404).");
+      } else {
+        setError(
+          err.response?.data?.message ||
+            "Não foi possível gerar o recibo. Tente novamente."
+        );
       }
-    );
-  }
-
-  function formatDate(date) {
-
-    if (!date) {
-      return "-";
+    } finally {
+      setReciboLoading(null);
     }
-
-    return new Date(
-      date + "T00:00:00"
-    ).toLocaleDateString(
-      "pt-BR"
-    );
   }
 
-  function getStatusBadge(status) {
+  function getContratoLabel(contratoId) {
+    const c = contratos.find((x) => String(x.id) === String(contratoId));
+    if (!c) return `Contrato #${contratoId}`;
+    return `Contrato #${c.id}`;
+  }
 
-    const statusMap = {
-      pendente:
-        "bg-warning text-dark",
+  function getLocatarioNome(contratoId) {
+    const c = contratos.find((x) => String(x.id) === String(contratoId));
+    return c?.locatario?.nome_locatario || c?.nome_locatario || "—";
+  }
 
-      pago:
-        "bg-success",
-
-      atrasado:
-        "bg-danger",
-
-      cancelado:
-        "bg-secondary",
-    };
-
-    return (
-      statusMap[status] ||
-      "bg-secondary"
-    );
+  function statusBadge(status) {
+    const s = String(status || "").toLowerCase();
+    if (s === "pago") return "badge-success";
+    if (s === "atrasado") return "badge-danger";
+    if (s === "a_vencer" || s === "pendente") return "badge-warning";
+    return "badge-neutral";
   }
 
   return (
-    <div className="recebimentos-page min-vh-100">
-
-      {/* Navbar */}
-
-      <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-
-        <div className="container">
-
-          <span className="navbar-brand fw-bold mb-0">
-            Meu Sistema
-          </span>
-
-          <div className="d-flex gap-2 flex-wrap">
-
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={() =>
-                navigate("/dashboard")
-              }
-            >
-              Dashboard
-            </button>
-
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={() =>
-                navigate("/usuarios")
-              }
-            >
-              Usuários
-            </button>
-
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={() =>
-                navigate("/locador")
-              }
-            >
-              Locadores
-            </button>
-
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={() =>
-                navigate("/locatarios")
-              }
-            >
-              Locatários
-            </button>
-
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={() =>
-                navigate("/imoveis")
-              }
-            >
-              Imóveis
-            </button>
-
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={() =>
-                navigate("/contratos")
-              }
-            >
-              Contratos
-            </button>
-
-            <button
-              className="btn btn-outline-danger btn-sm"
-              onClick={handleLogout}
-            >
-              Sair
-            </button>
-
-          </div>
-
+    <div className="recebimentos-page">
+      <header className="page-header">
+        <div>
+          <h1>Recebimentos</h1>
+          <p>Gerencie os recebimentos dos contratos</p>
         </div>
+        <button className="page-header-action" onClick={openCreateModal}>
+          + Novo Recebimento
+        </button>
+      </header>
 
-      </nav>
-
-
-      {/* Conteúdo */}
-
-      <div className="container py-4">
-
-        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-
-          <div>
-
-            <h2 className="fw-bold mb-1">
-              Recebimentos
-            </h2>
-
-            <p className="text-muted mb-0">
-              Gerencie os recebimentos dos contratos
-            </p>
-
-          </div>
-
-          <button
-            className="btn btn-primary"
-            onClick={openCreateModal}
-          >
-            + Novo Recebimento
+      {error && (
+        <div className="alert alert-error">
+          <span>{error}</span>
+          <button onClick={() => setError("")} aria-label="Fechar">
+            ×
           </button>
-
         </div>
-
-
-        {/* Alertas */}
-
-        {error && (
-
-          <div
-            className="alert alert-danger alert-dismissible fade show"
-            role="alert"
-          >
-
-            {error}
-
-            <button
-              type="button"
-              className="btn-close"
-              onClick={() =>
-                setError("")
-              }
-            />
-
-          </div>
-
-        )}
-
-
-        {success && (
-
-          <div
-            className="alert alert-success alert-dismissible fade show"
-            role="alert"
-          >
-
-            {success}
-
-            <button
-              type="button"
-              className="btn-close"
-              onClick={() =>
-                setSuccess("")
-              }
-            />
-
-          </div>
-
-        )}
-
-
-        {/* Tabela */}
-
-        <div className="card shadow-sm border-0">
-
-          <div className="card-body p-0">
-
-            {loading ? (
-
-              <div className="text-center py-5">
-
-                <div
-                  className="spinner-border text-primary"
-                  role="status"
-                >
-                  <span className="visually-hidden">
-                    Carregando...
-                  </span>
-                </div>
-
-              </div>
-
-            ) : recebimentos.length === 0 ? (
-
-              <div className="text-center py-5 text-muted">
-
-                Nenhum recebimento encontrado.
-
-              </div>
-
-            ) : (
-
-              <div className="table-responsive">
-
-                <table className="table table-hover mb-0 align-middle">
-
-                  <thead className="table-light">
-
-                    <tr>
-
-                      <th className="ps-4">
-                        ID
-                      </th>
-
-                      <th>
-                        Nº Recibo
-                      </th>
-
-                      <th>
-                        Contrato
-                      </th>
-
-                      <th>
-                        Locatário
-                      </th>
-
-                      <th>
-                        Vencimento
-                      </th>
-
-                      <th>
-                        Pagamento
-                      </th>
-
-                      <th>
-                        Valor Cobrado
-                      </th>
-
-                      <th>
-                        Valor Recebido
-                      </th>
-
-                      <th>
-                        Status
-                      </th>
-
-                      <th className="text-end pe-4">
-                        Ações
-                      </th>
-
-                    </tr>
-
-                  </thead>
-
-
-                  <tbody>
-
-                    {recebimentos.map(
-                      (item) => (
-
-                        <tr
-                          key={item.id}
-                        >
-
-                          <td className="ps-4">
-                            {item.id}
-                          </td>
-
-                          <td>
-                            {item.numero_recibo || "-"}
-                          </td>
-
-                          <td>
-                            {getContratoLabel(item)}
-                          </td>
-
-                          <td>
-                            {getLocatarioLabel(item)}
-                          </td>
-
-                          <td>
-                            {formatDate(
-                              item.data_vencimento
-                            )}
-                          </td>
-
-                          <td>
-                            {formatDate(
-                              item.data_pagamento
-                            )}
-                          </td>
-
-                          <td>
-                            {formatCurrency(
-                              item.valor_cobrado
-                            )}
-                          </td>
-
-                          <td>
-                            {formatCurrency(
-                              item.valor_recebido
-                            )}
-                          </td>
-
-                          <td>
-
-                            <span
-                              className={`badge ${getStatusBadge(
-                                item.status
-                              )}`}
-                            >
-                              {item.status ||
-                                "pendente"}
-                            </span>
-
-                          </td>
-
-
-                          <td className="text-end pe-4">
-
-                            {item.status ===
-                              "pago" && (
-
-                              <button
-                                className="btn btn-sm btn-outline-success me-2"
-                                onClick={() =>
-                                  handleGerarRecibo(
-                                    item
-                                  )
-                                }
-                              >
-                                Recibo
-                              </button>
-
-                            )}
-
-
-                            <button
-                              className="btn btn-sm btn-outline-primary me-2"
-                              onClick={() =>
-                                openEditModal(
-                                  item
-                                )
-                              }
-                            >
-                              Editar
-                            </button>
-
-
-                            <button
-                              className="btn btn-sm btn-outline-danger"
-                              onClick={() =>
-                                handleDelete(
-                                  item.id
-                                )
-                              }
-                            >
-                              Excluir
-                            </button>
-
-                          </td>
-
-                        </tr>
-
-                      )
-                    )}
-
-                  </tbody>
-
-                </table>
-
-              </div>
-
-            )}
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      {/* Modal */}
-
-      {showModal && (
-
-        <div
-          className="modal fade show d-block"
-          style={{
-            backgroundColor:
-              "rgba(0,0,0,0.5)"
-          }}
-        >
-
-          <div className="modal-dialog modal-dialog-centered modal-lg">
-
-            <div className="modal-content border-0 shadow">
-
-              <div className="modal-header">
-
-                <h5 className="modal-title fw-bold">
-
-                  {isEditing
-                    ? "Editar Recebimento"
-                    : "Novo Recebimento"}
-
-                </h5>
-
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={closeModal}
-                />
-
-              </div>
-
-
-              <form
-                onSubmit={handleSubmit}
-              >
-
-                <div className="modal-body">
-
-                  <div className="row g-3">
-
-                    {/* Contrato */}
-
-                    <div className="col-12">
-
-                      <label className="form-label">
-                        Contrato *
-                      </label>
-
-                      <select
-                        className="form-select"
-                        value={contrato_id}
-                        onChange={(e) =>
-                          setContratoId(
-                            e.target.value
-                          )
-                        }
-                        required
-                        disabled={
-                          formLoading
-                        }
-                      >
-
-                        <option value="">
-                          Selecione o contrato
-                        </option>
-
-                        {contratos.map(
-                          (item) => (
-
-                            <option
-                              key={item.id}
-                              value={item.id}
-                            >
-                              Contrato #
-                              {item.id} -
-                              Valor:{" "}
-                              {formatCurrency(
-                                item.valor
-                              )}
-                            </option>
-
-                          )
-                        )}
-
-                      </select>
-
-                    </div>
-
-
-                    {/* Número do Recibo */}
-
-                    <div className="col-md-6">
-
-                      <label className="form-label">
-                        Número do Recibo
-                      </label>
-
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={
-                          numero_recibo
-                        }
-                        onChange={(e) =>
-                          setNumeroRecibo(
-                            e.target.value
-                          )
-                        }
-                        disabled={
-                          formLoading
-                        }
-                        placeholder="Ex: REC-0001"
-                        maxLength={50}
-                      />
-
-                    </div>
-
-
-                    {/* Data Vencimento */}
-
-                    <div className="col-md-6">
-
-                      <label className="form-label">
-                        Data de Vencimento *
-                      </label>
-
-                      <input
-                        type="date"
-                        className="form-control"
-                        value={
-                          data_vencimento
-                        }
-                        onChange={(e) =>
-                          setDataVencimento(
-                            e.target.value
-                          )
-                        }
-                        required
-                        disabled={
-                          formLoading
-                        }
-                      />
-
-                    </div>
-
-
-                    {/* Data Pagamento */}
-
-                    <div className="col-md-6">
-
-                      <label className="form-label">
-                        Data de Pagamento
-                      </label>
-
-                      <input
-                        type="date"
-                        className="form-control"
-                        value={
-                          data_pagamento
-                        }
-                        onChange={(e) =>
-                          setDataPagamento(
-                            e.target.value
-                          )
-                        }
-                        disabled={
-                          formLoading
-                        }
-                      />
-
-                    </div>
-
-
-                    {/* Valor Cobrado */}
-
-                    <div className="col-md-6">
-
-                      <label className="form-label">
-                        Valor Cobrado (R$) *
-                      </label>
-
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={
-                          valor_cobrado
-                        }
-                        onChange={(e) =>
-                          setValorCobrado(
-                            e.target.value
-                          )
-                        }
-                        required
-                        min="0"
-                        step="0.01"
-                        disabled={
-                          formLoading
-                        }
-                        placeholder="0,00"
-                      />
-
-                    </div>
-
-
-                    {/* Valor Recebido */}
-
-                    <div className="col-md-6">
-
-                      <label className="form-label">
-                        Valor Recebido (R$)
-                      </label>
-
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={
-                          valor_recebido
-                        }
-                        onChange={(e) =>
-                          setValorRecebido(
-                            e.target.value
-                          )
-                        }
-                        min="0"
-                        step="0.01"
-                        disabled={
-                          formLoading
-                        }
-                        placeholder="0,00"
-                      />
-
-                    </div>
-
-
-                    {/* Status */}
-
-                    <div className="col-md-6">
-
-                      <label className="form-label">
-                        Status
-                      </label>
-
-                      <select
-                        className="form-select"
-                        value={status}
-                        onChange={(e) =>
-                          setStatus(
-                            e.target.value
-                          )
-                        }
-                        disabled={
-                          formLoading
-                        }
-                      >
-
-                        <option value="pendente">
-                          Pendente
-                        </option>
-
-                        <option value="pago">
-                          Pago
-                        </option>
-
-                        <option value="atrasado">
-                          Atrasado
-                        </option>
-
-                        <option value="cancelado">
-                          Cancelado
-                        </option>
-
-                      </select>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-
-                <div className="modal-footer">
-
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={closeModal}
-                    disabled={
-                      formLoading
-                    }
-                  >
-                    Cancelar
-                  </button>
-
-
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={
-                      formLoading
-                    }
-                  >
-
-                    {formLoading ? (
-
-                      <>
-
-                        <span className="spinner-border spinner-border-sm me-2"></span>
-
-                        Salvando...
-
-                      </>
-
-                    ) : isEditing ? (
-
-                      "Salvar Alterações"
-
-                    ) : (
-
-                      "Criar Recebimento"
-
-                    )}
-
-                  </button>
-
-                </div>
-
-              </form>
-
-            </div>
-
-          </div>
-
-        </div>
-
       )}
 
+      {success && (
+        <div className="alert alert-success">
+          <span>{success}</span>
+          <button onClick={() => setSuccess("")} aria-label="Fechar">
+            ×
+          </button>
+        </div>
+      )}
+
+      <div className="content-card" style={{ padding: 0, overflow: "hidden" }}>
+        {loading ? (
+          <div style={{ padding: "2.5rem 1.5rem" }}>
+            <div className="skeleton" style={{ height: 18, width: "40%", marginBottom: 16 }} />
+            <div className="skeleton" style={{ height: 14, width: "70%", marginBottom: 12 }} />
+            <div className="skeleton" style={{ height: 14, width: "55%", marginBottom: 12 }} />
+            <div className="skeleton" style={{ height: 14, width: "65%" }} />
+          </div>
+        ) : recebimentos.length === 0 ? (
+          <div className="empty-state">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="2" y="5" width="20" height="14" rx="2" />
+              <path d="M2 10h20" />
+              <path d="M6 15h4" />
+            </svg>
+            <h3>Nenhum recebimento cadastrado</h3>
+            <p>Clique em “Novo Recebimento” para começar.</p>
+          </div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table className="recebimentos-table">
+              <thead>
+                <tr>
+                  <th style={{ paddingLeft: "1.4rem" }}>ID</th>
+                  <th>Nº Recibo</th>
+                  <th>Contrato</th>
+                  <th>Locatário</th>
+                  <th>Vencimento</th>
+                  <th>Pagamento</th>
+                  <th>Valor Cobrado</th>
+                  <th>Valor Recebido</th>
+                  <th>Status</th>
+                  <th style={{ textAlign: "right", paddingRight: "1.4rem" }}>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recebimentos.map((item) => (
+                  <tr key={item.id}>
+                    <td style={{ paddingLeft: "1.4rem", color: "var(--text-muted)" }}>
+                      {item.id}
+                    </td>
+                    <td>{item.numero_recibo || item.n_recibo || "—"}</td>
+                    <td>{getContratoLabel(item.contrato_id)}</td>
+                    <td>{getLocatarioNome(item.contrato_id)}</td>
+                    <td>{formatDate(item.data_vencimento)}</td>
+                    <td>{formatDate(item.data_pagamento)}</td>
+                    <td>{formatMoney(item.valor_cobrado)}</td>
+                    <td>{formatMoney(item.valor_recebido)}</td>
+                    <td>
+                      <span className={`badge ${statusBadge(item.status)}`}>
+                        {item.status || "—"}
+                      </span>
+                    </td>
+                    <td style={{ paddingRight: "1.4rem" }}>
+                      <div className="actions">
+                        <button
+                          className="btn-table primary"
+                          title="Gerar recibo"
+                          onClick={() => handleGerarRecibo(item)}
+                          disabled={reciboLoading === item.id}
+                        >
+                          {reciboLoading === item.id ? "Gerando..." : "Recibo"}
+                        </button>
+                        <button className="btn-table" onClick={() => openEditModal(item)}>
+                          Editar
+                        </button>
+                        <button
+                          className="btn-table danger"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {showModal && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{isEditing ? "Editar Recebimento" : "Novo Recebimento"}</h2>
+              <button className="modal-close" onClick={closeModal} aria-label="Fechar">
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Contrato *</label>
+                  <select
+                    value={contrato_id}
+                    onChange={(e) => setContratoId(e.target.value)}
+                    required
+                    disabled={formLoading}
+                  >
+                    <option value="">Selecione o contrato</option>
+                    {contratos.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        Contrato #{c.id}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Nº do Recibo</label>
+                    <input
+                      type="text"
+                      value={numero_recibo}
+                      onChange={(e) => setNumeroRecibo(e.target.value)}
+                      disabled={formLoading}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Status</label>
+                    <select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                      disabled={formLoading}
+                    >
+                      <option value="pendente">Pendente</option>
+                      <option value="pago">Pago</option>
+                      <option value="atrasado">Atrasado</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Data de Vencimento</label>
+                    <input
+                      type="date"
+                      value={data_vencimento}
+                      onChange={(e) => setDataVencimento(e.target.value)}
+                      disabled={formLoading}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Data de Pagamento</label>
+                    <input
+                      type="date"
+                      value={data_pagamento}
+                      onChange={(e) => setDataPagamento(e.target.value)}
+                      disabled={formLoading}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Valor Cobrado</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={valor_cobrado}
+                      onChange={(e) => setValorCobrado(e.target.value)}
+                      disabled={formLoading}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Valor Recebido</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={valor_recebido}
+                      onChange={(e) => setValorRecebido(e.target.value)}
+                      disabled={formLoading}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeModal}
+                  disabled={formLoading}
+                >
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={formLoading}>
+                  {formLoading
+                    ? "Salvando..."
+                    : isEditing
+                    ? "Salvar alterações"
+                    : "Criar recebimento"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

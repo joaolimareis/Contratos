@@ -31,7 +31,7 @@ export default function Navbar() {
           onClick={() => setMenuOpen(false)}
         >
           <div className="brand-logo">
-            <img src="/logo-J.svg" alt="Contratos" className="logo-img" />
+            <img src="/logo-j.svg" alt="Contratos" className="logo-img" />
           </div>
           <span className="brand-name">Contratos</span>
         </Link>

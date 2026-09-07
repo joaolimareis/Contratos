@@ -349,7 +349,7 @@ body {
   <div class="dados">
     <div class="campo">
       <span class="label">
-        Mês de referência
+        REFERENTE AO MÊS
       </span>
       <div class="valor-campo">
         ${escapeHtml(mesReferencia)}

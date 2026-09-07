@@ -1,23 +1,19 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import "./Locatarios.css";
 
 function Locatarios() {
-  const navigate = useNavigate();
-
   const [locatarios, setLocatarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Modal
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
 
-  // Campos do formulário (conforme o model)
   const [nome_locatario, setNomeLocatario] = useState("");
   const [tel_locatario, setTelLocatario] = useState("");
   const [rua_locatario, setRuaLocatario] = useState("");
@@ -32,9 +28,9 @@ function Locatarios() {
     setError("");
     try {
       const response = await api.get("/locatarios");
-      setLocatarios(response.data.data);
+      setLocatarios(response.data.data || response.data || []);
     } catch (err) {
-      setError(err.response?.data?.message || "Erro ao carregar locatários.");
+      setError(err.response?.data?.message || "Não foi possível carregar os locatários.");
     } finally {
       setLoading(false);
     }
@@ -54,6 +50,7 @@ function Locatarios() {
     setRgLocatario("");
     setUfLocatario("");
     setCurrentId(null);
+    setFieldErrors({});
   }
 
   function openCreateModal() {
@@ -75,6 +72,7 @@ function Locatarios() {
     setCpfLocatario(locatario.cpf_locatario || "");
     setRgLocatario(locatario.rg_locatario || "");
     setUfLocatario(locatario.uf_locatario || "");
+    setFieldErrors({});
     setShowModal(true);
     setError("");
     setSuccess("");
@@ -90,31 +88,43 @@ function Locatarios() {
     setFormLoading(true);
     setError("");
     setSuccess("");
+    setFieldErrors({});
+
+    const errors = {};
+
+    if (!nome_locatario.trim()) errors.nome_locatario = "Informe o nome.";
+    if (!tel_locatario.trim()) errors.tel_locatario = "Informe o telefone.";
+    if (!cpf_locatario.trim()) errors.cpf_locatario = "Informe o CPF.";
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setFormLoading(false);
+      return;
+    }
 
     const payload = {
-      nome_locatario,
-      tel_locatario,
-      rua_locatario: rua_locatario || null,
-      bairro_locatario: bairro_locatario || null,
-      cep_locatario: cep_locatario || null,
-      cpf_locatario,
-      rg_locatario: rg_locatario || null,
-      uf_locatario: uf_locatario || null,
+      nome_locatario: nome_locatario.trim(),
+      tel_locatario: tel_locatario.trim(),
+      cpf_locatario: cpf_locatario.trim(),
+      rua_locatario: rua_locatario.trim() || null,
+      bairro_locatario: bairro_locatario.trim() || null,
+      cep_locatario: cep_locatario.trim() || null,
+      rg_locatario: rg_locatario.trim() || null,
+      uf_locatario: uf_locatario.trim().toUpperCase() || null,
     };
 
     try {
       if (isEditing) {
         await api.put(`/locatarios/${currentId}`, payload);
-        setSuccess("Locatário atualizado com sucesso!");
+        setSuccess("Locatário atualizado com sucesso.");
       } else {
         await api.post("/locatarios", payload);
-        setSuccess("Locatário criado com sucesso!");
+        setSuccess("Locatário criado com sucesso.");
       }
-
       closeModal();
       loadLocatarios();
     } catch (err) {
-      setError(err.response?.data?.message || "Erro ao salvar locatário.");
+      setError(err.response?.data?.message || "Erro ao salvar o locatário.");
     } finally {
       setFormLoading(false);
     }
@@ -125,283 +135,276 @@ function Locatarios() {
 
     try {
       await api.delete(`/locatarios/${id}`);
-      setSuccess("Locatário excluído com sucesso!");
+      setSuccess("Locatário excluído com sucesso.");
       loadLocatarios();
     } catch (err) {
-      setError(err.response?.data?.message || "Erro ao excluir locatário.");
+      setError(err.response?.data?.message || "Erro ao excluir o locatário.");
     }
   }
 
-  function handleLogout() {
-    navigate("/");
-  }
-
   return (
-    <div className="locatarios-page min-vh-100">
-      {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div className="container">
-          <span className="navbar-brand fw-bold mb-0">Meu Sistema</span>
-
-          <div className="d-flex gap-2 flex-wrap">
-            <button className="btn btn-outline-primary btn-sm" onClick={() => navigate("/dashboard")}>
-              Dashboard
-            </button>
-            <button className="btn btn-outline-primary btn-sm" onClick={() => navigate("/usuarios")}>
-              Usuários
-            </button>
-            <button className="btn btn-outline-primary btn-sm" onClick={() => navigate("/locador")}>
-              Locadores
-            </button>
-            <button className="btn btn-outline-danger btn-sm" onClick={handleLogout}>
-              Sair
-            </button>
-          </div>
+    <div className="locatarios-page">
+      <header className="page-header">
+        <div>
+          <h1>Locatários</h1>
+          <p>Gerencie os locatários do sistema</p>
         </div>
-      </nav>
+        <button className="page-header-action" onClick={openCreateModal}>
+          + Novo Locatário
+        </button>
+      </header>
 
-      {/* Conteúdo */}
-      <div className="container py-4">
-        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-          <div>
-            <h2 className="fw-bold mb-1">Locatários</h2>
-            <p className="text-muted mb-0">Gerencie os locatários do sistema</p>
-          </div>
-
-          <button className="btn btn-primary" onClick={openCreateModal}>
-            + Novo Locatário
+      {error && (
+        <div className="alert alert-error">
+          <span>{error}</span>
+          <button onClick={() => setError("")} aria-label="Fechar">
+            ×
           </button>
         </div>
+      )}
 
-        {/* Alertas */}
-        {error && (
-          <div className="alert alert-danger alert-dismissible fade show" role="alert">
-            {error}
-            <button type="button" className="btn-close" onClick={() => setError("")}></button>
-          </div>
-        )}
-
-        {success && (
-          <div className="alert alert-success alert-dismissible fade show" role="alert">
-            {success}
-            <button type="button" className="btn-close" onClick={() => setSuccess("")}></button>
-          </div>
-        )}
-
-        {/* Tabela */}
-        <div className="card shadow-sm border-0">
-          <div className="card-body p-0">
-            {loading ? (
-              <div className="text-center py-5">
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Carregando...</span>
-                </div>
-              </div>
-            ) : locatarios.length === 0 ? (
-              <div className="text-center py-5 text-muted">
-                Nenhum locatário encontrado.
-              </div>
-            ) : (
-              <div className="table-responsive">
-                <table className="table table-hover mb-0 align-middle">
-                  <thead className="table-light">
-                    <tr>
-                      <th className="ps-4">ID</th>
-                      <th>Nome</th>
-                      <th>Telefone</th>
-                      <th>CPF</th>
-                      <th>RG</th>
-                      <th>UF</th>
-                      <th className="text-end pe-4">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {locatarios.map((item) => (
-                      <tr key={item.id}>
-                        <td className="ps-4">{item.id}</td>
-                        <td>{item.nome_locatario}</td>
-                        <td>{item.tel_locatario}</td>
-                        <td>{item.cpf_locatario}</td>
-                        <td>{item.rg_locatario || "-"}</td>
-                        <td>{item.uf_locatario || "-"}</td>
-                        <td className="text-end pe-4">
-                          <button
-                            className="btn btn-sm btn-outline-primary me-2"
-                            onClick={() => openEditModal(item)}
-                          >
-                            Editar
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleDelete(item.id)}
-                          >
-                            Excluir
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+      {success && (
+        <div className="alert alert-success">
+          <span>{success}</span>
+          <button onClick={() => setSuccess("")} aria-label="Fechar">
+            ×
+          </button>
         </div>
+      )}
+
+      <div className="content-card" style={{ padding: 0, overflow: "hidden" }}>
+        {loading ? (
+          <div style={{ padding: "2.5rem 1.5rem" }}>
+            <div className="skeleton" style={{ height: 18, width: "40%", marginBottom: 16 }} />
+            <div className="skeleton" style={{ height: 14, width: "70%", marginBottom: 12 }} />
+            <div className="skeleton" style={{ height: 14, width: "55%", marginBottom: 12 }} />
+            <div className="skeleton" style={{ height: 14, width: "65%" }} />
+          </div>
+        ) : locatarios.length === 0 ? (
+          <div className="empty-state">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="9" cy="7" r="3.5" />
+              <path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6" />
+              <circle cx="17" cy="8" r="2.5" />
+              <path d="M22 20c0-2.5-1.8-4.5-4.5-5" />
+            </svg>
+            <h3>Nenhum locatário cadastrado</h3>
+            <p>Clique em “Novo Locatário” para começar.</p>
+          </div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table className="locatarios-table">
+              <thead>
+                <tr>
+                  <th style={{ paddingLeft: "1.4rem" }}>ID</th>
+                  <th>Nome</th>
+                  <th>Telefone</th>
+                  <th>CPF</th>
+                  <th>RG</th>
+                  <th>UF</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {locatarios.map((item) => (
+                  <tr key={item.id}>
+                    <td style={{ paddingLeft: "1.4rem", color: "var(--text-muted)" }}>
+                      {item.id}
+                    </td>
+                    <td>{item.nome_locatario}</td>
+                    <td>{item.tel_locatario || "—"}</td>
+                    <td>{item.cpf_locatario || "—"}</td>
+                    <td>{item.rg_locatario || "—"}</td>
+                    <td>{item.uf_locatario || "—"}</td>
+                    <td>
+                      <div className="actions">
+                        <button className="btn-table" onClick={() => openEditModal(item)}>
+                          Editar
+                        </button>
+                        <button
+                          className="btn-table danger"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* Modal Criar / Editar */}
       {showModal && (
-        <div
-          className="modal fade show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content border-0 shadow">
-              <div className="modal-header">
-                <h5 className="modal-title fw-bold">
-                  {isEditing ? "Editar Locatário" : "Novo Locatário"}
-                </h5>
-                <button type="button" className="btn-close" onClick={closeModal}></button>
-              </div>
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{isEditing ? "Editar Locatário" : "Novo Locatário"}</h2>
+              <button className="modal-close" onClick={closeModal} aria-label="Fechar">
+                ×
+              </button>
+            </div>
 
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body">
-                  <div className="row g-3">
-                    {/* Nome */}
-                    <div className="col-md-8">
-                      <label className="form-label">Nome *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={nome_locatario}
-                        onChange={(e) => setNomeLocatario(e.target.value)}
-                        required
-                        maxLength={150}
-                        disabled={formLoading}
-                      />
-                    </div>
+            <form onSubmit={handleSubmit}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Nome *</label>
+                  <input
+                    type="text"
+                    value={nome_locatario}
+                    onChange={(e) => {
+                      setNomeLocatario(e.target.value);
+                      if (fieldErrors.nome_locatario) {
+                        setFieldErrors((prev) => ({ ...prev, nome_locatario: "" }));
+                      }
+                    }}
+                    maxLength={150}
+                    disabled={formLoading}
+                    placeholder="Nome completo"
+                    className={fieldErrors.nome_locatario ? "has-error" : ""}
+                  />
+                  {fieldErrors.nome_locatario && (
+                    <span className="form-error-msg">{fieldErrors.nome_locatario}</span>
+                  )}
+                </div>
 
-                    {/* Telefone */}
-                    <div className="col-md-4">
-                      <label className="form-label">Telefone *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={tel_locatario}
-                        onChange={(e) => setTelLocatario(e.target.value)}
-                        required
-                        maxLength={14}
-                        disabled={formLoading}
-                        placeholder="(00) 00000-0000"
-                      />
-                    </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Telefone *</label>
+                    <input
+                      type="text"
+                      value={tel_locatario}
+                      onChange={(e) => {
+                        setTelLocatario(e.target.value);
+                        if (fieldErrors.tel_locatario) {
+                          setFieldErrors((prev) => ({ ...prev, tel_locatario: "" }));
+                        }
+                      }}
+                      maxLength={14}
+                      disabled={formLoading}
+                      placeholder="(00) 00000-0000"
+                      className={fieldErrors.tel_locatario ? "has-error" : ""}
+                    />
+                    {fieldErrors.tel_locatario && (
+                      <span className="form-error-msg">{fieldErrors.tel_locatario}</span>
+                    )}
+                  </div>
 
-                    {/* CPF */}
-                    <div className="col-md-4">
-                      <label className="form-label">CPF *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={cpf_locatario}
-                        onChange={(e) => setCpfLocatario(e.target.value)}
-                        required
-                        maxLength={20}
-                        disabled={formLoading}
-                      />
-                    </div>
-
-                    {/* RG */}
-                    <div className="col-md-4">
-                      <label className="form-label">RG</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={rg_locatario}
-                        onChange={(e) => setRgLocatario(e.target.value)}
-                        maxLength={100}
-                        disabled={formLoading}
-                      />
-                    </div>
-
-                    {/* UF */}
-                    <div className="col-md-4">
-                      <label className="form-label">UF</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={uf_locatario}
-                        onChange={(e) => setUfLocatario(e.target.value.toUpperCase())}
-                        maxLength={2}
-                        disabled={formLoading}
-                        placeholder="Ex: SP"
-                      />
-                    </div>
-
-                    {/* Rua */}
-                    <div className="col-md-8">
-                      <label className="form-label">Rua</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={rua_locatario}
-                        onChange={(e) => setRuaLocatario(e.target.value)}
-                        maxLength={150}
-                        disabled={formLoading}
-                      />
-                    </div>
-
-                    {/* Bairro */}
-                    <div className="col-md-4">
-                      <label className="form-label">Bairro</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={bairro_locatario}
-                        onChange={(e) => setBairroLocatario(e.target.value)}
-                        maxLength={20}
-                        disabled={formLoading}
-                      />
-                    </div>
-
-                    {/* CEP */}
-                    <div className="col-md-4">
-                      <label className="form-label">CEP</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={cep_locatario}
-                        onChange={(e) => setCepLocatario(e.target.value)}
-                        maxLength={10}
-                        disabled={formLoading}
-                        placeholder="00000-000"
-                      />
-                    </div>
+                  <div className="form-group">
+                    <label>CPF *</label>
+                    <input
+                      type="text"
+                      value={cpf_locatario}
+                      onChange={(e) => {
+                        setCpfLocatario(e.target.value);
+                        if (fieldErrors.cpf_locatario) {
+                          setFieldErrors((prev) => ({ ...prev, cpf_locatario: "" }));
+                        }
+                      }}
+                      maxLength={20}
+                      disabled={formLoading}
+                      placeholder="000.000.000-00"
+                      className={fieldErrors.cpf_locatario ? "has-error" : ""}
+                    />
+                    {fieldErrors.cpf_locatario && (
+                      <span className="form-error-msg">{fieldErrors.cpf_locatario}</span>
+                    )}
                   </div>
                 </div>
 
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={closeModal}
-                    disabled={formLoading}
-                  >
-                    Cancelar
-                  </button>
-                  <button type="submit" className="btn btn-primary" disabled={formLoading}>
-                    {formLoading ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2"></span>
-                        Salvando...
-                      </>
-                    ) : isEditing ? (
-                      "Salvar Alterações"
-                    ) : (
-                      "Criar Locatário"
-                    )}
-                  </button>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>RG</label>
+                    <input
+                      type="text"
+                      value={rg_locatario}
+                      onChange={(e) => setRgLocatario(e.target.value)}
+                      maxLength={100}
+                      disabled={formLoading}
+                      placeholder="Número do RG"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>UF</label>
+                    <input
+                      type="text"
+                      value={uf_locatario}
+                      onChange={(e) => setUfLocatario(e.target.value.toUpperCase())}
+                      maxLength={2}
+                      disabled={formLoading}
+                      placeholder="Ex: SP"
+                    />
+                  </div>
                 </div>
-              </form>
-            </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Rua</label>
+                    <input
+                      type="text"
+                      value={rua_locatario}
+                      onChange={(e) => setRuaLocatario(e.target.value)}
+                      maxLength={150}
+                      disabled={formLoading}
+                      placeholder="Rua e número"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Bairro</label>
+                    <input
+                      type="text"
+                      value={bairro_locatario}
+                      onChange={(e) => setBairroLocatario(e.target.value)}
+                      maxLength={50}
+                      disabled={formLoading}
+                      placeholder="Bairro"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>CEP</label>
+                  <input
+                    type="text"
+                    value={cep_locatario}
+                    onChange={(e) => setCepLocatario(e.target.value)}
+                    maxLength={10}
+                    disabled={formLoading}
+                    placeholder="00000-000"
+                    style={{ maxWidth: "180px" }}
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeModal}
+                  disabled={formLoading}
+                >
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={formLoading}>
+                  {formLoading
+                    ? "Salvando..."
+                    : isEditing
+                    ? "Salvar alterações"
+                    : "Criar locatário"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

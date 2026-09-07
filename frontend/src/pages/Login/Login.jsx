@@ -85,7 +85,7 @@ async function handleSubmit(e) {
         <div className="login-card">
           <div className="login-header">
           <div className="brand-icon">
-  <img src="/logo-J.svg" alt="Contratos" className="logo-img" />
+  <img src="/logo-j.svg" alt="Contratos" className="logo-img" />
 </div>
             <h1>Bem-vindo</h1>
             <p>Acesse o sistema de gestão de contratos</p>
