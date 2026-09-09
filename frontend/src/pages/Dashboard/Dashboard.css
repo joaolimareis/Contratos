@@ -1,11 +1,44 @@
+/* =============================================================================
+   Dashboard.css — otimizado para performance em telas grandes
+   Técnicas: contain, content-visibility, GPU compositing, shimmer via transform
+   ============================================================================= */
+
+/* ─── Página ──────────────────────────────────────────────────────────────── */
 .dashboard-page {
   max-width: 1100px;
+  /* Isola o layout desta árvore — mudanças internas não disparam reflow global */
+  contain: layout style;
 }
 
-/* ===== KPIs ===== */
+/* ─── Page header ─────────────────────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2.25rem;
+}
+
+.page-header h1 {
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0 0 0.2rem 0;
+}
+
+.page-header p {
+  margin: 0.45rem 0 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ─── KPIs ────────────────────────────────────────────────────────────────── */
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  /* Colunas fixas para evitar recalcular auto-fit a cada resize */
+  grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   margin-bottom: 1.75rem;
 }
@@ -19,15 +52,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  /* Isola paint e layout de cada card individualmente */
+  contain: layout style paint;
 }
 
-.kpi-card.kpi-warning {
-  border-top-color: var(--warning);
-}
-
-.kpi-card.kpi-danger {
-  border-top-color: var(--danger);
-}
+.kpi-card.kpi-warning { border-top-color: var(--warning); }
+.kpi-card.kpi-danger  { border-top-color: var(--danger); }
 
 .kpi-label {
   font-size: 0.8rem;
@@ -40,13 +70,13 @@
   font-weight: 700;
   color: var(--text);
   letter-spacing: -0.02em;
+  /* Reserva altura fixa → evita layout shift enquanto os dados chegam */
+  min-height: 2.3rem;
 }
 
-.kpi-card.kpi-danger .kpi-value {
-  color: var(--danger);
-}
+.kpi-card.kpi-danger .kpi-value { color: var(--danger); }
 
-/* ===== Colunas ===== */
+/* ─── Colunas ─────────────────────────────────────────────────────────────── */
 .dashboard-columns {
   display: grid;
   grid-template-columns: 1.7fr 1fr;
@@ -61,12 +91,19 @@
   margin-bottom: 1.1rem;
 }
 
-/* ===== Lista de vencimentos ===== */
+/* ─── Lista de vencimentos ────────────────────────────────────────────────── */
 .vencimentos-list {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  /*
+   * content-visibility: auto → o browser pula o render de itens fora
+   * da viewport em telas grandes, reduzindo drasticamente o tempo de paint.
+   * contain-intrinsic-size reserva espaço para o scrollbar não pular.
+   */
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
 }
 
 .vencimento-item {
@@ -75,11 +112,11 @@
   gap: 0.9rem;
   padding: 0.7rem 0.5rem;
   border-bottom: 1px solid var(--border);
+  /* Isola layout de cada item — um item "sujo" não refaz layout de todos */
+  contain: layout style;
 }
 
-.vencimento-item:last-child {
-  border-bottom: none;
-}
+.vencimento-item:last-child { border-bottom: none; }
 
 .vencimento-date {
   flex-shrink: 0;
@@ -137,7 +174,7 @@
   color: var(--text);
 }
 
-/* ===== Mini calendário ===== */
+/* ─── Mini calendário ─────────────────────────────────────────────────────── */
 .mini-calendar-header {
   font-size: 0.85rem;
   font-weight: 600;
@@ -164,6 +201,11 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
   margin-bottom: 1rem;
+  /*
+   * Promove o grid à camada de composição — repaints no hover/dot
+   * ficam confinados à GPU sem afetar o layout da página.
+   */
+  transform: translateZ(0);
 }
 
 .mini-calendar-cell {
@@ -178,9 +220,7 @@
   color: var(--text);
 }
 
-.mini-calendar-cell.is-empty {
-  visibility: hidden;
-}
+.mini-calendar-cell.is-empty { visibility: hidden; }
 
 .mini-calendar-cell.is-today {
   background: var(--accent-bg);
@@ -188,16 +228,18 @@
   color: var(--accent);
 }
 
+/* Dots — promovidos à GPU para não desencadear repaint no restante */
 .calendar-dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
   display: inline-block;
+  transform: translateZ(0);
 }
 
 .dot-atrasado { background: var(--danger); }
 .dot-a_vencer { background: var(--warning); }
-.dot-em_dia { background: var(--success); }
+.dot-em_dia   { background: var(--success); }
 
 .mini-calendar-legend {
   display: flex;
@@ -213,38 +255,54 @@
   color: var(--text-muted);
 }
 
-/* ===== Responsivo ===== */
+/* ─── Skeleton ────────────────────────────────────────────────────────────── */
+/*
+ * Animação via transform (GPU) em vez de background-position (CPU).
+ * Elimina jank visível ao recarregar em telas maiores.
+ */
+.skeleton {
+  border-radius: 4px;
+  background: var(--border);
+  overflow: hidden;
+  position: relative;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--card-bg) 60%, transparent) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: shimmer 1.4s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes shimmer {
+  to { transform: translateX(100%); }
+}
+
+/* ─── Responsivo ──────────────────────────────────────────────────────────── */
 @media (max-width: 860px) {
+  .kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .dashboard-columns {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
+  .kpi-row {
+    grid-template-columns: 1fr;
+  }
+
   .vencimento-valor {
     display: none;
   }
-}
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 2.25rem;   /* aumenta o espaço entre o cabeçalho e os cards */
-}
-
-.page-header h1 {
-  font-size: 1.7rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text);
-  margin: 0 0 0.2rem 0;
-}
-
-.page-header p {
-  margin: 0;
-  margin-top: 0.45rem;
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  line-height: 1.4;
 }

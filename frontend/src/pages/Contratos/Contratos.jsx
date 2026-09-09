@@ -29,6 +29,7 @@ function Contratos() {
   const [currentId, setCurrentId] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [uploadingId, setUploadingId] = useState(null);
 
   const [locatario_id, setLocatarioId] = useState("");
   const [imovel_id, setImovelId] = useState("");
@@ -36,6 +37,9 @@ function Contratos() {
   const [data_fim, setDataFim] = useState("");
   const [valor, setValor] = useState("");
   const [status, setStatus] = useState(true);
+
+  const API_BASE = api.defaults.baseURL || "http://localhost:3001/api";
+  const BACKEND_URL = API_BASE.replace(/\/api\/?$/, "");
 
   async function loadContratos() {
     setLoading(true);
@@ -175,6 +179,80 @@ function Contratos() {
     }
   }
 
+  // ===== UPLOAD DO PDF (sem recarregar a lista → não sobe/desce a página) =====
+  async function handleUploadPdf(contratoId, file) {
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      setError("Envie apenas arquivos PDF.");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError("O arquivo deve ter no máximo 10 MB.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("arquivo", file);
+
+    setUploadingId(contratoId);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await api.post(`/contratos/${contratoId}/upload`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const arquivoPdf =
+        response.data?.arquivo_pdf ||
+        response.data?.data?.arquivo_pdf ||
+        null;
+
+      // Atualiza só o item na lista (sem loadContratos → sem jump de scroll)
+      setContratos((prev) =>
+        prev.map((c) =>
+          c.id === contratoId ? { ...c, arquivo_pdf: arquivoPdf } : c
+        )
+      );
+
+      setSuccess("PDF enviado com sucesso.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Erro ao enviar o PDF.");
+    } finally {
+      setUploadingId(null);
+    }
+  }
+
+  // ===== REMOVER PDF =====
+  async function handleRemovePdf(contratoId) {
+    if (!window.confirm("Tem certeza que deseja remover o PDF deste contrato?")) {
+      return;
+    }
+
+    setUploadingId(contratoId);
+    setError("");
+    setSuccess("");
+
+    try {
+      await api.delete(`/contratos/${contratoId}/upload`);
+
+      // Atualiza só o item na lista
+      setContratos((prev) =>
+        prev.map((c) =>
+          c.id === contratoId ? { ...c, arquivo_pdf: null } : c
+        )
+      );
+
+      setSuccess("PDF removido com sucesso.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Erro ao remover o PDF.");
+    } finally {
+      setUploadingId(null);
+    }
+  }
+
   function getNomeLocatario(id) {
     const item = locatarios.find((l) => String(l.id) === String(id));
     return item ? item.nome_locatario || item.nome || `Locatário #${id}` : `Locatário #${id}`;
@@ -246,8 +324,7 @@ function Contratos() {
             <table className="contratos-table">
               <thead>
                 <tr>
-                  <th style={{ paddingLeft: "1.4rem" }}>ID</th>
-                  <th>Locatário</th>
+                  <th style={{ paddingLeft: "1.4rem" }}>Locatário</th>
                   <th>Imóvel</th>
                   <th>Início</th>
                   <th>Fim</th>
@@ -259,10 +336,9 @@ function Contratos() {
               <tbody>
                 {contratos.map((item) => (
                   <tr key={item.id}>
-                    <td style={{ paddingLeft: "1.4rem", color: "var(--text-muted)" }}>
-                      {item.id}
+                    <td style={{ paddingLeft: "1.4rem" }}>
+                      {getNomeLocatario(item.locatario_id)}
                     </td>
-                    <td>{getNomeLocatario(item.locatario_id)}</td>
                     <td>{getEnderecoImovel(item.imovel_id)}</td>
                     <td>{formatDate(item.data_inicio)}</td>
                     <td>{formatDate(item.data_fim)}</td>
@@ -279,6 +355,52 @@ function Contratos() {
                         <button className="btn-table" onClick={() => openEditModal(item)}>
                           Editar
                         </button>
+
+                        {/* Upload PDF */}
+                        <label
+                          className="btn-table"
+                          style={{
+                            cursor: uploadingId === item.id ? "wait" : "pointer",
+                            margin: 0,
+                            opacity: uploadingId === item.id ? 0.6 : 1,
+                          }}
+                        >
+                          {uploadingId === item.id ? "Enviando..." : "Upload PDF"}
+                          <input
+                            type="file"
+                            accept="application/pdf"
+                            hidden
+                            disabled={uploadingId === item.id}
+                            onChange={(e) => {
+                              handleUploadPdf(item.id, e.target.files[0]);
+                              e.target.value = "";
+                            }}
+                          />
+                        </label>
+
+                        {/* Ver PDF */}
+                        {item.arquivo_pdf && (
+                          <a
+                            className="btn-table"
+                            href={`${BACKEND_URL}${item.arquivo_pdf}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Ver PDF
+                          </a>
+                        )}
+
+                        {/* Remover PDF */}
+                        {item.arquivo_pdf && (
+                          <button
+                            className="btn-table danger"
+                            disabled={uploadingId === item.id}
+                            onClick={() => handleRemovePdf(item.id)}
+                          >
+                            Remover PDF
+                          </button>
+                        )}
+
                         <button
                           className="btn-table danger"
                           onClick={() => handleDelete(item.id)}

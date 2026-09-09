@@ -93,7 +93,6 @@ function Imoveis() {
     const numeroTrim = numero.trim();
     const errors = {};
 
-    // Validação de endereço
     if (!enderecoTrim) {
       errors.endereco = "Informe o endereço.";
     } else if (enderecoTrim.length < 5) {
@@ -104,12 +103,10 @@ function Imoveis() {
       errors.endereco = "Endereço não pode conter apenas números.";
     }
 
-    // Validação de número
     if (numeroTrim && !/^[0-9A-Za-z\-\/]+$/.test(numeroTrim)) {
       errors.numero = "Número inválido.";
     }
 
-    // Verifica duplicidade (mesmo endereço + número)
     const jaExiste = imoveis.some((item) => {
       if (isEditing && item.id === currentId) return false;
       const mesmoEndereco =
@@ -235,8 +232,7 @@ function Imoveis() {
             <table className="imoveis-table">
               <thead>
                 <tr>
-                  <th style={{ paddingLeft: "1.5rem" }}>ID</th>
-                  <th>Locador</th>
+                  <th style={{ paddingLeft: "1.5rem" }}>Locador</th>
                   <th>Endereço</th>
                   <th>Número</th>
                   <th>Status</th>
@@ -246,10 +242,9 @@ function Imoveis() {
               <tbody>
                 {imoveis.map((item) => (
                   <tr key={item.id}>
-                    <td style={{ paddingLeft: "1.5rem", color: "var(--text-muted)" }}>
-                      {item.id}
+                    <td style={{ paddingLeft: "1.5rem" }}>
+                      {getNomeLocador(item.locador_id)}
                     </td>
-                    <td>{getNomeLocador(item.locador_id)}</td>
                     <td>{item.endereco}</td>
                     <td>{item.numero || "—"}</td>
                     <td>

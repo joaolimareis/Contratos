@@ -49,11 +49,17 @@ export default class Contratos extends Model {
         allowNull: false
       },
 
-      status: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true,
-        defaultValue: true
-      }
+    status: {
+  type: DataTypes.BOOLEAN,
+  allowNull: true,
+  defaultValue: true
+},
+
+arquivo_pdf: {
+  type: DataTypes.STRING(500),
+  allowNull: true,
+  defaultValue: null
+}
 
     }, {
 

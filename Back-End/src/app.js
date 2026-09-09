@@ -128,6 +128,7 @@ app.use("/api", imoveisRoutes);
 app.use("/api", contratosRoutes);
 app.use("/api", recebimentosRoutes);
 app.use("/api", loginRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // TRATAMENTO DE ERROS — SEMPRE POR ÚLTIMO
 app.use(errorHandling);
