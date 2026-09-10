@@ -12,8 +12,12 @@ import { generatePdfFromHtml } from "../service/pdfService.js";
 import { reciboTemplate } from "../templates/recibo.template.js";
 
 import handleResponse from "../utils/handleError.js";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 export const createRecebimentoController = async (req, res, next) => {
 
   try {
@@ -272,11 +276,70 @@ export const gerarReciboController = async (
   }
 };
 
+export const uploadComprovanteController = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!req.file) {
+      return handleResponse(res, 400, "Nenhum arquivo enviado.");
+    }
+
+    const recebimento = await getRecebimentoByIdService(id);
+
+    if (!recebimento) {
+      fs.unlinkSync(req.file.path);
+      return handleResponse(res, 404, "Recebimento não encontrado.");
+    }
+
+    if (recebimento.status !== "pago") {
+      fs.unlinkSync(req.file.path);
+      return handleResponse(
+        res,
+        400,
+        "Só é possível adicionar comprovante em recebimentos pagos."
+      );
+    }
+
+    // Apaga comprovante antigo se existir
+    if (recebimento.comprovante) {
+      const oldPath = path.join(
+        __dirname,
+        "../../uploads/comprovantes",
+        path.basename(recebimento.comprovante)
+      );
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+
+    const relativePath = `/uploads/comprovantes/${req.file.filename}`;
+
+    await updateRecebimentoService(
+      id,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      relativePath
+    );
+
+    return handleResponse(res, 200, "Comprovante adicionado com sucesso.", {
+      comprovante: relativePath,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   createRecebimentoController,
   getAllRecebimentosController,
   getRecebimentoByIdController,
   updateRecebimentoController,
   deleteRecebimentoController,
-  gerarReciboController
+  gerarReciboController,
+  uploadComprovanteController
 };

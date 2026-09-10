@@ -178,72 +178,107 @@ function montarResumo({ imoveis, contratos, recebimentos, locatarios }) {
   }
 
   // Sintéticos — detecta meses sem recebimento em contratos ativos
-  const sinteticos = [];
-  for (const c of contratos) {
-    if (STATUS_CONTRATO_INATIVOS.has(normalizar(c.status))) continue;
+// Sintéticos — detecta meses sem recebimento em contratos ativos
+const sinteticos = [];
+for (const c of contratos) {
+  if (STATUS_CONTRATO_INATIVOS.has(normalizar(c.status))) continue;
 
-    const inicio = parseData(c.data_inicio || c.inicio || c.dataInicio);
-    const fim    = parseData(c.data_fim    || c.fim    || c.dataFim);
-    if ((inicio && inicio > hoje) || (fim && fim < hoje)) continue;
+  const inicio = parseData(c.data_inicio || c.inicio || c.dataInicio);
+  const fim    = parseData(c.data_fim    || c.fim    || c.dataFim);
+  if ((inicio && inicio > hoje) || (fim && fim < hoje)) continue;
 
-    const lista = recebimentosPorContrato.get(String(c.id));
-    if (!lista || lista.length === 0) continue;
+  const lista = recebimentosPorContrato.get(String(c.id));
+  if (!lista || lista.length === 0) continue;
 
-    // Achar o recebimento mais recente em uma só passagem (sem sort)
-    let ultimoVenc = null;
-    let ultimoR    = null;
-    for (const r of lista) {
-      const v = parseData(r.data_vencimento);
-      if (v && (!ultimoVenc || v > ultimoVenc)) { ultimoVenc = v; ultimoR = r; }
-    }
-    if (!ultimoVenc) continue;
-
-    const diaVencimento = ultimoVenc.getDate();
-
-    for (let offset = 0; offset <= 1; offset++) {
-      const candidato = new Date(hoje.getFullYear(), hoje.getMonth() + offset, diaVencimento);
-      // Corrige meses sem o dia exato (ex: dia 31 em fevereiro)
-      if (candidato.getDate() !== diaVencimento) candidato.setDate(0);
-
-      const jaExiste = lista.some((r) => {
-        const v = parseData(r.data_vencimento);
-        return v && sameMonth(v, candidato);
-      });
-      if (jaExiste) continue;
-
-      const diff = diasEntre(hoje, candidato);
-      if (diff < -5 || diff > DIAS_LISTA) continue;
-
-      const imovel    = imoveisPorId.get(String(c.imovel_id));
-      const locatario = locatariosPorId.get(String(c.locatario_id));
-
-      const enderecoImovel = imovel
-        ? sanitize([imovel.endereco, imovel.numero].filter(Boolean).join(", "))
-        : `Imóvel #${c.imovel_id ?? "?"}`;
-
-      const descContrato = locatario?.nome_locatario
-        ? `${sanitize(locatario.nome_locatario)} · Contrato #${c.id}`
-        : `Contrato #${c.id}`;
-
-      sinteticos.push({
-        id:          `synth-${c.id}-${candidato.getFullYear()}-${candidato.getMonth()}`,
-        vencimento:  candidato,
-        valor:       Number(c.valor ?? ultimoR?.valor_cobrado ?? 0),
-        status:      statusRecebimento(candidato, hoje),
-        imovel:      enderecoImovel,
-        contrato:    descContrato,
-        isSynthetic: true,
-      });
-    }
+  // Achar o recebimento mais recente em uma só passagem (sem sort)
+  let ultimoVenc = null;
+  let ultimoR    = null;
+  for (const r of lista) {
+    const v = parseData(r.data_vencimento);
+    if (v && (!ultimoVenc || v > ultimoVenc)) { ultimoVenc = v; ultimoR = r; }
   }
+  if (!ultimoVenc) continue;
 
-  const todosPendentes = [...pendentesReais, ...sinteticos].sort(
+  const diaVencimento = ultimoVenc.getDate();
+
+  // Verifica se o contrato ainda tem algum recebimento em atraso
+  const temAtrasoNoContrato = lista.some((r) => {
+    if (normalizar(r.status) === "pago" || r.data_pagamento) return false;
+    const v = parseData(r.data_vencimento);
+    return v && diasEntre(hoje, v) < 0;
+  });
+
+  for (let offset = 0; offset <= 1; offset++) {
+    // Não gera o próximo mês se ainda existir atraso no contrato
+    if (offset === 1 && temAtrasoNoContrato) continue;
+
+    const candidato = new Date(hoje.getFullYear(), hoje.getMonth() + offset, diaVencimento);
+    // Corrige meses sem o dia exato (ex: dia 31 em fevereiro)
+    if (candidato.getDate() !== diaVencimento) candidato.setDate(0);
+
+    const jaExiste = lista.some((r) => {
+      const v = parseData(r.data_vencimento);
+      return v && sameMonth(v, candidato);
+    });
+    if (jaExiste) continue;
+
+    const diff = diasEntre(hoje, candidato);
+    if (diff < -5 || diff > DIAS_LISTA) continue;
+
+    const imovel    = imoveisPorId.get(String(c.imovel_id));
+    const locatario = locatariosPorId.get(String(c.locatario_id));
+
+    const enderecoImovel = imovel
+      ? sanitize([imovel.endereco, imovel.numero].filter(Boolean).join(", "))
+      : `Imóvel #${c.imovel_id ?? "?"}`;
+
+    const descContrato = locatario?.nome_locatario
+      ? `${sanitize(locatario.nome_locatario)} · Contrato #${c.id}`
+      : `Contrato #${c.id}`;
+
+    sinteticos.push({
+      id:          `synth-${c.id}-${candidato.getFullYear()}-${candidato.getMonth()}`,
+      vencimento:  candidato,
+      valor:       Number(c.valor ?? ultimoR?.valor_cobrado ?? 0),
+      status:      statusRecebimento(candidato, hoje),
+      imovel:      enderecoImovel,
+      contrato:    descContrato,
+      isSynthetic: true,
+    });
+  }
+}
+
+    const todosPendentes = [...pendentesReais, ...sinteticos].sort(
     (a, b) => a.vencimento - b.vencimento
   );
 
-  const proximosVencimentos = todosPendentes.filter(
-    (p) => p.status === "atrasado" || diasEntre(hoje, p.vencimento) <= DIAS_LISTA
+  // Contratos que ainda têm atraso (qualquer item atrasado)
+  const contratosComAtraso = new Set(
+    todosPendentes
+      .filter((p) => p.status === "atrasado")
+      .map((p) => {
+        // extrai o id do contrato a partir da descrição ou do id do item
+        // (funciona tanto para real quanto sintético)
+        const match = String(p.contrato).match(/Contrato #(\d+)/);
+        return match ? match[1] : null;
+      })
+      .filter(Boolean)
   );
+
+  // Se o contrato tem atraso, só mostra os itens atrasados dele
+  // (esconde os futuros até o atraso ser quitado)
+  const proximosVencimentos = todosPendentes.filter((p) => {
+    const match = String(p.contrato).match(/Contrato #(\d+)/);
+    const contratoId = match ? match[1] : null;
+
+    if (contratoId && contratosComAtraso.has(contratoId)) {
+      // só deixa passar se for atrasado
+      return p.status === "atrasado";
+    }
+
+    // contratos sem atraso: mostra normalmente (atrasado / a vencer / em dia dentro do limite)
+    return p.status === "atrasado" || diasEntre(hoje, p.vencimento) <= DIAS_LISTA;
+  });
 
   return {
     kpis: {

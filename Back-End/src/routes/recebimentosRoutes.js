@@ -11,10 +11,43 @@ import {
 
 import validateRecebimentos from "../middlewares/recebimentoValidador.js";
 
+import multer from "multer";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { uploadComprovanteController } from "../controllers/recebimentosControllers.js";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "../../uploads/comprovantes"));
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, `comprovante-${req.params.id}-${uniqueSuffix}${ext}`);
+  },
+});
 
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowed = [".pdf", ".jpg", ".jpeg", ".png", ".webp"];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Apenas arquivos PDF, JPG, PNG ou WEBP são permitidos."));
+    }
+  },
+});
 const router = express.Router();
-
+router.post(
+  "/recebimentos/:id/comprovante",
+  upload.single("comprovante"),
+  uploadComprovanteController
+);
 
 /**
  * @swagger

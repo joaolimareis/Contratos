@@ -79,41 +79,37 @@ export const updateRecebimentoService = async (
   valor_cobrado,
   valor_recebido,
   status,
-  numero_recibo
+  numero_recibo,
+  comprovante // ← novo parâmetro
 ) => {
-
   const recebimento = await Recebimentos.findByPk(id);
 
   if (!recebimento) {
     return null;
   }
 
-
   if (contrato_id !== undefined) {
-
     const contrato = await Contratos.findByPk(contrato_id);
-
     if (!contrato) {
       throw new Error("Contrato not found");
     }
-
   }
 
+  const dataToUpdate = {};
 
- await recebimento.update({
-  contrato_id,
-  data_vencimento,
-  data_pagamento,
-  valor_cobrado,
-  valor_recebido,
-  status,
-  numero_recibo
-});
+  if (contrato_id !== undefined) dataToUpdate.contrato_id = contrato_id;
+  if (data_vencimento !== undefined) dataToUpdate.data_vencimento = data_vencimento;
+  if (data_pagamento !== undefined) dataToUpdate.data_pagamento = data_pagamento;
+  if (valor_cobrado !== undefined) dataToUpdate.valor_cobrado = valor_cobrado;
+  if (valor_recebido !== undefined) dataToUpdate.valor_recebido = valor_recebido;
+  if (status !== undefined) dataToUpdate.status = status;
+  if (numero_recibo !== undefined) dataToUpdate.numero_recibo = numero_recibo;
+  if (comprovante !== undefined) dataToUpdate.comprovante = comprovante;
 
+  await recebimento.update(dataToUpdate);
 
   return recebimento;
 };
-
 
 export const deleteRecebimentoService = async (id) => {
 

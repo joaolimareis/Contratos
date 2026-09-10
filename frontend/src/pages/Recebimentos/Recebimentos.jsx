@@ -27,7 +27,8 @@ function Recebimentos() {
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
-  const [reciboLoading, setReciboLoading] = useState(null); // id do recibo que está gerando
+  const [reciboLoading, setReciboLoading] = useState(null);
+  const [comprovanteLoading, setComprovanteLoading] = useState(null); // ← NOVO
 
   // campos do formulário
   const [contrato_id, setContratoId] = useState("");
@@ -156,10 +157,9 @@ function Recebimentos() {
 
     try {
       const response = await api.get(`/recebimentos/${item.id}/recibo`, {
-        responseType: "blob", // importante para PDF
+        responseType: "blob",
       });
 
-      // Cria URL do blob e abre em nova aba
       const blob = new Blob([response.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
 
@@ -168,7 +168,6 @@ function Recebimentos() {
       link.target = "_blank";
       link.rel = "noopener noreferrer";
 
-      // Também oferece download com nome amigável
       const numero = item.numero_recibo || item.id;
       link.download = `recibo-${numero}.pdf`;
 
@@ -176,7 +175,6 @@ function Recebimentos() {
       link.click();
       document.body.removeChild(link);
 
-      // Libera a memória
       setTimeout(() => window.URL.revokeObjectURL(url), 1000);
     } catch (err) {
       console.error("Erro ao gerar recibo:", err);
@@ -191,6 +189,36 @@ function Recebimentos() {
       }
     } finally {
       setReciboLoading(null);
+    }
+  }
+
+  // ===== UPLOAD COMPROVANTE =====
+  async function handleUploadComprovante(item, file) {
+    if (!file) return;
+
+    setComprovanteLoading(item.id);
+    setError("");
+    setSuccess("");
+
+    const formData = new FormData();
+    formData.append("comprovante", file);
+
+    try {
+      await api.post(`/recebimentos/${item.id}/comprovante`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setSuccess("Comprovante adicionado com sucesso!");
+      loadRecebimentos();
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Erro ao enviar o comprovante. Tente novamente."
+      );
+    } finally {
+      setComprovanteLoading(null);
     }
   }
 
@@ -305,6 +333,7 @@ function Recebimentos() {
                     </td>
                     <td style={{ paddingRight: "1.4rem" }}>
                       <div className="actions">
+                        {/* Botão Recibo */}
                         <button
                           className="btn-table primary"
                           title="Gerar recibo"
@@ -313,6 +342,51 @@ function Recebimentos() {
                         >
                           {reciboLoading === item.id ? "Gerando..." : "Recibo"}
                         </button>
+
+                        {/* ===== BOTÃO COMPROVANTE (só aparece se estiver pago) ===== */}
+                        {String(item.status).toLowerCase() === "pago" && (
+                          <>
+                            <input
+                              type="file"
+                              id={`comprovante-${item.id}`}
+                              accept=".pdf,.jpg,.jpeg,.png,.webp"
+                              style={{ display: "none" }}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleUploadComprovante(item, file);
+                                e.target.value = "";
+                              }}
+                            />
+                            <button
+                              className="btn-table"
+                              title={item.comprovante ? "Trocar comprovante" : "Adicionar comprovante"}
+                              onClick={() =>
+                                document.getElementById(`comprovante-${item.id}`).click()
+                              }
+                              disabled={comprovanteLoading === item.id}
+                            >
+                              {comprovanteLoading === item.id
+                                ? "Enviando..."
+                                : item.comprovante
+                                ? "Trocar Comprovante"
+                                : "Adicionar Comprovante"}
+                            </button>
+
+                            {item.comprovante && (
+                              <a
+                                href={item.comprovante}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-table"
+                                title="Ver comprovante"
+                                style={{ textDecoration: "none" }}
+                              >
+                                Ver
+                              </a>
+                            )}
+                          </>
+                        )}
+
                         <button className="btn-table" onClick={() => openEditModal(item)}>
                           Editar
                         </button>

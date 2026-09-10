@@ -54,7 +54,11 @@ export default class Recebimentos extends Model {
       numero_recibo: {
         type: DataTypes.STRING(50),
         allowNull: true
-      }
+      },
+      comprovante: {
+  type: DataTypes.STRING(255),
+  allowNull: true,
+},
 
     }, {
 
