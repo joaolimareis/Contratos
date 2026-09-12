@@ -4,6 +4,15 @@ import "./Recebimentos.css";
 
 function formatDate(value) {
   if (!value) return "—";
+
+  // Pega só YYYY-MM-DD (evita o bug de -1 dia por fuso horário)
+  const s = String(value).trim().slice(0, 10);
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [ano, mes, dia] = s.split("-");
+    return `${dia}/${mes}/${ano}`;
+  }
+
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value;
   return d.toLocaleDateString("pt-BR");
@@ -28,7 +37,7 @@ function Recebimentos() {
   const [currentId, setCurrentId] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [reciboLoading, setReciboLoading] = useState(null);
-  const [comprovanteLoading, setComprovanteLoading] = useState(null); // ← NOVO
+  const [comprovanteLoading, setComprovanteLoading] = useState(null);
 
   // campos do formulário
   const [contrato_id, setContratoId] = useState("");
@@ -301,8 +310,7 @@ function Recebimentos() {
             <table className="recebimentos-table">
               <thead>
                 <tr>
-                  <th style={{ paddingLeft: "1.4rem" }}>ID</th>
-                  <th>Nº Recibo</th>
+                  <th style={{ paddingLeft: "1.4rem" }}>Nº Recibo</th>
                   <th>Contrato</th>
                   <th>Locatário</th>
                   <th>Vencimento</th>
@@ -316,10 +324,9 @@ function Recebimentos() {
               <tbody>
                 {recebimentos.map((item) => (
                   <tr key={item.id}>
-                    <td style={{ paddingLeft: "1.4rem", color: "var(--text-muted)" }}>
-                      {item.id}
+                    <td style={{ paddingLeft: "1.4rem" }}>
+                      {item.numero_recibo || item.n_recibo || "—"}
                     </td>
-                    <td>{item.numero_recibo || item.n_recibo || "—"}</td>
                     <td>{getContratoLabel(item.contrato_id)}</td>
                     <td>{getLocatarioNome(item.contrato_id)}</td>
                     <td>{formatDate(item.data_vencimento)}</td>
@@ -343,7 +350,7 @@ function Recebimentos() {
                           {reciboLoading === item.id ? "Gerando..." : "Recibo"}
                         </button>
 
-                        {/* ===== BOTÃO COMPROVANTE (só aparece se estiver pago) ===== */}
+                        {/* Botão Comprovante (só se estiver pago) */}
                         {String(item.status).toLowerCase() === "pago" && (
                           <>
                             <input
@@ -483,23 +490,33 @@ function Recebimentos() {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Valor Cobrado</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={valor_cobrado}
-                      onChange={(e) => setValorCobrado(e.target.value)}
-                      disabled={formLoading}
-                    />
+                    <div className="input-with-prefix">
+                      <span className="prefix">R$</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={valor_cobrado}
+                        onChange={(e) => setValorCobrado(e.target.value)}
+                        disabled={formLoading}
+                        placeholder="0,00"
+                      />
+                    </div>
                   </div>
                   <div className="form-group">
                     <label>Valor Recebido</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={valor_recebido}
-                      onChange={(e) => setValorRecebido(e.target.value)}
-                      disabled={formLoading}
-                    />
+                    <div className="input-with-prefix">
+                      <span className="prefix">R$</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={valor_recebido}
+                        onChange={(e) => setValorRecebido(e.target.value)}
+                        disabled={formLoading}
+                        placeholder="0,00"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

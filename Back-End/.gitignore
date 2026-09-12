@@ -1,3 +1,5 @@
 .env
 node_modules/
+# Uploads
 uploads/
+uploads/*

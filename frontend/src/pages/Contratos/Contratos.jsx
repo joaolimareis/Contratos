@@ -4,7 +4,16 @@ import "./Contratos.css";
 
 function formatDate(value) {
   if (!value) return "—";
-  const d = new Date(value.includes("T") ? value : value + "T00:00:00");
+
+  // Pega só YYYY-MM-DD (evita o bug de -1 dia por fuso horário)
+  const s = String(value).trim().slice(0, 10);
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [ano, mes, dia] = s.split("-");
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value;
   return d.toLocaleDateString("pt-BR");
 }
@@ -179,7 +188,7 @@ function Contratos() {
     }
   }
 
-  // ===== UPLOAD DO PDF (sem recarregar a lista → não sobe/desce a página) =====
+  // ===== UPLOAD DO PDF =====
   async function handleUploadPdf(contratoId, file) {
     if (!file) return;
 
@@ -210,7 +219,7 @@ function Contratos() {
         response.data?.data?.arquivo_pdf ||
         null;
 
-      // Atualiza só o item na lista (sem loadContratos → sem jump de scroll)
+      // Atualiza só o item na lista (sem recarregar → não sobe a página)
       setContratos((prev) =>
         prev.map((c) =>
           c.id === contratoId ? { ...c, arquivo_pdf: arquivoPdf } : c
@@ -238,7 +247,6 @@ function Contratos() {
     try {
       await api.delete(`/contratos/${contratoId}/upload`);
 
-      // Atualiza só o item na lista
       setContratos((prev) =>
         prev.map((c) =>
           c.id === contratoId ? { ...c, arquivo_pdf: null } : c
@@ -255,7 +263,9 @@ function Contratos() {
 
   function getNomeLocatario(id) {
     const item = locatarios.find((l) => String(l.id) === String(id));
-    return item ? item.nome_locatario || item.nome || `Locatário #${id}` : `Locatário #${id}`;
+    return item
+      ? item.nome_locatario || item.nome || `Locatário #${id}`
+      : `Locatário #${id}`;
   }
 
   function getEnderecoImovel(id) {
@@ -522,22 +532,25 @@ function Contratos() {
                   </div>
 
                   <div className="form-group">
-                    <label>Valor (R$) *</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={valor}
-                      onChange={(e) => {
-                        setValor(e.target.value);
-                        if (fieldErrors.valor) {
-                          setFieldErrors((prev) => ({ ...prev, valor: "" }));
-                        }
-                      }}
-                      disabled={formLoading}
-                      placeholder="0,00"
-                      className={fieldErrors.valor ? "has-error" : ""}
-                    />
+                    <label>Valor *</label>
+                    <div className="input-with-prefix">
+                      <span className="prefix">R$</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={valor}
+                        onChange={(e) => {
+                          setValor(e.target.value);
+                          if (fieldErrors.valor) {
+                            setFieldErrors((prev) => ({ ...prev, valor: "" }));
+                          }
+                        }}
+                        disabled={formLoading}
+                        placeholder="0,00"
+                        className={fieldErrors.valor ? "has-error" : ""}
+                      />
+                    </div>
                     {fieldErrors.valor && (
                       <span className="form-error-msg">{fieldErrors.valor}</span>
                     )}
