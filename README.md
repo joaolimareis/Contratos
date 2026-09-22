@@ -13,20 +13,6 @@ Além de resolver um problema real, este projeto representa meu primeiro grande 
 O objetivo principal foi aplicar e consolidar meus conhecimentos em desenvolvimento Backend, arquitetura de APIs, banco de dados, segurança e boas práticas de desenvolvimento.
 
 > Este projeto está em constante evolução. Como parte do meu processo de aprendizado, novas funcionalidades, melhorias de segurança e ajustes de arquitetura serão implementados conforme meu conhecimento evolui.
-
----
-
-# 🌐 Demonstração da API
-
-A API está hospedada utilizando o Vercel e possui uma documentação interativa através do Swagger UI.
-
-É possível visualizar todos os endpoints disponíveis, realizar testes das requisições e explorar a estrutura da API diretamente pelo navegador.
-
-🔗 Documentação Swagger:
-[https://contratos-henna.vercel.app/api-docs#/](https://contratos-henna.vercel.app/api-docs#/)
-
-> Futuramente pretendo adicionar imagens, GIFs ou vídeos demonstrando o funcionamento da aplicação para facilitar a visualização do projeto.
-
 ---
 
 # ⚙️ Tecnologias utilizadas
