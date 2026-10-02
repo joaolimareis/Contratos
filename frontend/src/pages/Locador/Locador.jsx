@@ -22,7 +22,27 @@ function Locador() {
   const [cep_locador, setCepLocador] = useState("");
   const [rg_locador, setRgLocador] = useState("");
   const [uf_locador, setUfLocador] = useState("");
+function maskCPF(v) {
+  v = v.replace(/\D/g, "").slice(0, 11);
+  return v
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
 
+function maskTel(v) {
+  v = v.replace(/\D/g, "").slice(0, 11);
+  if (v.length > 10) return v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+  if (v.length > 6) return v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+  if (v.length > 2) return v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
+  if (v.length > 0) return `(${v}`;
+  return "";
+}
+
+function maskCEP(v) {
+  v = v.replace(/\D/g, "").slice(0, 8);
+  return v.length > 5 ? v.replace(/^(\d{5})(\d{1,3})$/, "$1-$2") : v;
+}
   async function loadLocadores() {
     setLoading(true);
     setError("");
@@ -65,11 +85,11 @@ function Locador() {
     setIsEditing(true);
     setCurrentId(locador.id);
     setNomeLocador(locador.nome_locador || "");
-    setTelLocador(locador.tel_locador || "");
-    setCpfLocador(locador.cpf_locador || "");
+    setTelLocador(maskTel(locador.tel_locador || ""));
+    setCpfLocador(maskCPF(locador.cpf_locador || ""));
     setRuaLocador(locador.rua_locador || "");
     setBairroLocador(locador.bairro_locador || "");
-    setCepLocador(locador.cep_locador || "");
+    setCepLocador(maskCEP(locador.cep_locador || ""));
     setRgLocador(locador.rg_locador || "");
     setUfLocador(locador.uf_locador || "");
     setFieldErrors({});
@@ -90,7 +110,7 @@ function Locador() {
     setError("");
     setSuccess("");
     setFieldErrors({});
-
+   
     const errors = {};
 
     if (!nome_locador.trim()) errors.nome_locador = "Informe o nome.";
@@ -284,11 +304,12 @@ function Locador() {
                       type="text"
                       value={tel_locador}
                       onChange={(e) => {
-                        setTelLocador(e.target.value);
-                        if (fieldErrors.tel_locador) {
-                          setFieldErrors((prev) => ({ ...prev, tel_locador: "" }));
-                        }
-                      }}
+  setTelLocador(maskTel(e.target.value));
+  if (fieldErrors.tel_locador) {
+    setFieldErrors((prev) => ({ ...prev, tel_locador: "" }));
+  }
+}}
+inputMode="numeric"
                       disabled={formLoading}
                       placeholder="(91) 99999-9999"
                       className={fieldErrors.tel_locador ? "has-error" : ""}
@@ -303,12 +324,13 @@ function Locador() {
                     <input
                       type="text"
                       value={cpf_locador}
-                      onChange={(e) => {
-                        setCpfLocador(e.target.value);
-                        if (fieldErrors.cpf_locador) {
-                          setFieldErrors((prev) => ({ ...prev, cpf_locador: "" }));
-                        }
-                      }}
+                     onChange={(e) => {
+  setCpfLocador(maskCPF(e.target.value));
+  if (fieldErrors.cpf_locador) {
+    setFieldErrors((prev) => ({ ...prev, cpf_locador: "" }));
+  }
+}}
+inputMode="numeric"
                       disabled={formLoading}
                       placeholder="000.000.000-00"
                       className={fieldErrors.cpf_locador ? "has-error" : ""}
@@ -373,7 +395,8 @@ function Locador() {
                   <input
                     type="text"
                     value={cep_locador}
-                    onChange={(e) => setCepLocador(e.target.value)}
+                    onChange={(e) => setCepLocador(maskCEP(e.target.value))}
+inputMode="numeric"
                     disabled={formLoading}
                     placeholder="00000-000"
                     style={{ maxWidth: "180px" }}

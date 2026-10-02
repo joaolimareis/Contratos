@@ -23,6 +23,27 @@ function Locatarios() {
   const [rg_locatario, setRgLocatario] = useState("");
   const [uf_locatario, setUfLocatario] = useState("");
 
+  function maskCPF(v) {
+  v = v.replace(/\D/g, "").slice(0, 11);
+  return v
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+
+function maskTel(v) {
+  v = v.replace(/\D/g, "").slice(0, 11);
+  if (v.length > 10) return v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+  if (v.length > 6) return v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+  if (v.length > 2) return v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
+  if (v.length > 0) return `(${v}`;
+  return "";
+}
+
+function maskCEP(v) {
+  v = v.replace(/\D/g, "").slice(0, 8);
+  return v.length > 5 ? v.replace(/^(\d{5})(\d{1,3})$/, "$1-$2") : v;
+}
   async function loadLocatarios() {
     setLoading(true);
     setError("");
@@ -65,11 +86,11 @@ function Locatarios() {
     setIsEditing(true);
     setCurrentId(locatario.id);
     setNomeLocatario(locatario.nome_locatario || "");
-    setTelLocatario(locatario.tel_locatario || "");
+    setTelLocatario(maskTel(locatario.tel_locatario || ""));
     setRuaLocatario(locatario.rua_locatario || "");
     setBairroLocatario(locatario.bairro_locatario || "");
-    setCepLocatario(locatario.cep_locatario || "");
-    setCpfLocatario(locatario.cpf_locatario || "");
+    setCepLocatario(maskCEP(locatario.cep_locatario || ""));
+    setCpfLocatario(maskCPF(locatario.cpf_locatario || ""));
     setRgLocatario(locatario.rg_locatario || "");
     setUfLocatario(locatario.uf_locatario || "");
     setFieldErrors({});
@@ -93,8 +114,8 @@ function Locatarios() {
     const errors = {};
 
     if (!nome_locatario.trim()) errors.nome_locatario = "Informe o nome.";
-    if (!tel_locatario.trim()) errors.tel_locatario = "Informe o telefone.";
-    if (!cpf_locatario.trim()) errors.cpf_locatario = "Informe o CPF.";
+   if (cpf_locatario.replace(/\D/g, "").length !== 11) errors.cpf_locatario = "CPF inválido.";
+if (tel_locatario.replace(/\D/g, "").length < 10) errors.tel_locatario = "Telefone inválido.";
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -255,137 +276,130 @@ function Locatarios() {
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label>Nome *</label>
-                  <input
-                    type="text"
-                    value={nome_locatario}
-                    onChange={(e) => {
-                      setNomeLocatario(e.target.value);
-                      if (fieldErrors.nome_locatario) {
-                        setFieldErrors((prev) => ({ ...prev, nome_locatario: "" }));
-                      }
-                    }}
-                    maxLength={150}
-                    disabled={formLoading}
-                    placeholder="Nome completo"
-                    className={fieldErrors.nome_locatario ? "has-error" : ""}
-                  />
-                  {fieldErrors.nome_locatario && (
-                    <span className="form-error-msg">{fieldErrors.nome_locatario}</span>
-                  )}
-                </div>
+             <div className="modal-body">
+  <div className="form-group full">
+    <label>Nome *</label>
+    <input
+      type="text"
+      value={nome_locatario}
+      onChange={(e) => {
+        setNomeLocatario(e.target.value);
+        if (fieldErrors.nome_locatario) {
+          setFieldErrors((prev) => ({ ...prev, nome_locatario: "" }));
+        }
+      }}
+      maxLength={150}
+      disabled={formLoading}
+      placeholder="Nome completo"
+      className={fieldErrors.nome_locatario ? "has-error" : ""}
+    />
+    {fieldErrors.nome_locatario && (
+      <span className="form-error-msg">{fieldErrors.nome_locatario}</span>
+    )}
+  </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Telefone *</label>
-                    <input
-                      type="text"
-                      value={tel_locatario}
-                      onChange={(e) => {
-                        setTelLocatario(e.target.value);
-                        if (fieldErrors.tel_locatario) {
-                          setFieldErrors((prev) => ({ ...prev, tel_locatario: "" }));
-                        }
-                      }}
-                      maxLength={14}
-                      disabled={formLoading}
-                      placeholder="(00) 00000-0000"
-                      className={fieldErrors.tel_locatario ? "has-error" : ""}
-                    />
-                    {fieldErrors.tel_locatario && (
-                      <span className="form-error-msg">{fieldErrors.tel_locatario}</span>
-                    )}
-                  </div>
+  <div className="form-group">
+    <label>Telefone *</label>
+    <input
+      type="text"
+      inputMode="numeric"
+      value={tel_locatario}
+      onChange={(e) => {
+        setTelLocatario(maskTel(e.target.value));
+        if (fieldErrors.tel_locatario) {
+          setFieldErrors((prev) => ({ ...prev, tel_locatario: "" }));
+        }
+      }}
+      disabled={formLoading}
+      placeholder="(91) 99999-9999"
+      className={fieldErrors.tel_locatario ? "has-error" : ""}
+    />
+    {fieldErrors.tel_locatario && (
+      <span className="form-error-msg">{fieldErrors.tel_locatario}</span>
+    )}
+  </div>
 
-                  <div className="form-group">
-                    <label>CPF *</label>
-                    <input
-                      type="text"
-                      value={cpf_locatario}
-                      onChange={(e) => {
-                        setCpfLocatario(e.target.value);
-                        if (fieldErrors.cpf_locatario) {
-                          setFieldErrors((prev) => ({ ...prev, cpf_locatario: "" }));
-                        }
-                      }}
-                      maxLength={20}
-                      disabled={formLoading}
-                      placeholder="000.000.000-00"
-                      className={fieldErrors.cpf_locatario ? "has-error" : ""}
-                    />
-                    {fieldErrors.cpf_locatario && (
-                      <span className="form-error-msg">{fieldErrors.cpf_locatario}</span>
-                    )}
-                  </div>
-                </div>
+  <div className="form-group">
+    <label>CPF *</label>
+    <input
+      type="text"
+      inputMode="numeric"
+      value={cpf_locatario}
+      onChange={(e) => {
+        setCpfLocatario(maskCPF(e.target.value));
+        if (fieldErrors.cpf_locatario) {
+          setFieldErrors((prev) => ({ ...prev, cpf_locatario: "" }));
+        }
+      }}
+      disabled={formLoading}
+      placeholder="000.000.000-00"
+      className={fieldErrors.cpf_locatario ? "has-error" : ""}
+    />
+    {fieldErrors.cpf_locatario && (
+      <span className="form-error-msg">{fieldErrors.cpf_locatario}</span>
+    )}
+  </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>RG</label>
-                    <input
-                      type="text"
-                      value={rg_locatario}
-                      onChange={(e) => setRgLocatario(e.target.value)}
-                      maxLength={100}
-                      disabled={formLoading}
-                      placeholder="Número do RG"
-                    />
-                  </div>
+  <div className="form-group">
+    <label>RG</label>
+    <input
+      type="text"
+      value={rg_locatario}
+      onChange={(e) => setRgLocatario(e.target.value)}
+      maxLength={20}
+      disabled={formLoading}
+      placeholder="Número do RG"
+    />
+  </div>
 
-                  <div className="form-group">
-                    <label>UF</label>
-                    <input
-                      type="text"
-                      value={uf_locatario}
-                      onChange={(e) => setUfLocatario(e.target.value.toUpperCase())}
-                      maxLength={2}
-                      disabled={formLoading}
-                      placeholder="Ex: SP"
-                    />
-                  </div>
-                </div>
+  <div className="form-group">
+    <label>UF</label>
+    <input
+      type="text"
+      value={uf_locatario}
+      onChange={(e) => setUfLocatario(e.target.value.toUpperCase())}
+      maxLength={2}
+      disabled={formLoading}
+      placeholder="PA"
+    />
+  </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Rua</label>
-                    <input
-                      type="text"
-                      value={rua_locatario}
-                      onChange={(e) => setRuaLocatario(e.target.value)}
-                      maxLength={150}
-                      disabled={formLoading}
-                      placeholder="Rua e número"
-                    />
-                  </div>
+  <div className="form-group">
+    <label>CEP</label>
+    <input
+      type="text"
+      inputMode="numeric"
+      value={cep_locatario}
+      onChange={(e) => setCepLocatario(maskCEP(e.target.value))}
+      disabled={formLoading}
+      placeholder="00000-000"
+    />
+  </div>
 
-                  <div className="form-group">
-                    <label>Bairro</label>
-                    <input
-                      type="text"
-                      value={bairro_locatario}
-                      onChange={(e) => setBairroLocatario(e.target.value)}
-                      maxLength={50}
-                      disabled={formLoading}
-                      placeholder="Bairro"
-                    />
-                  </div>
-                </div>
+  <div className="form-group">
+    <label>Bairro</label>
+    <input
+      type="text"
+      value={bairro_locatario}
+      onChange={(e) => setBairroLocatario(e.target.value)}
+      maxLength={50}
+      disabled={formLoading}
+      placeholder="Bairro"
+    />
+  </div>
 
-                <div className="form-group">
-                  <label>CEP</label>
-                  <input
-                    type="text"
-                    value={cep_locatario}
-                    onChange={(e) => setCepLocatario(e.target.value)}
-                    maxLength={10}
-                    disabled={formLoading}
-                    placeholder="00000-000"
-                    style={{ maxWidth: "180px" }}
-                  />
-                </div>
-              </div>
+  <div className="form-group full">
+    <label>Rua</label>
+    <input
+      type="text"
+      value={rua_locatario}
+      onChange={(e) => setRuaLocatario(e.target.value)}
+      maxLength={150}
+      disabled={formLoading}
+      placeholder="Rua e número"
+    />
+  </div>
+</div>
 
               <div className="modal-footer">
                 <button

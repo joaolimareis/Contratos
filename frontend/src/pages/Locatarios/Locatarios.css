@@ -303,3 +303,23 @@
   color: var(--text-muted);
   line-height: 1.4;
 }
+
+.modal-body {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem 1rem;
+}
+
+.form-group {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.form-group input {
+  box-sizing: border-box;
+}

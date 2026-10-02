@@ -7,18 +7,12 @@ export const createLocadorService = async (dadosLocador) => {
     return createLocador
 }
 
-export const getAllLocadorService = async () =>{
-    return await Locador.findAll({
-        attributes: ["id","nome_locador"]
-    })
-
+export const getAllLocadorService = async () => {
+    return await Locador.findAll();
 }
 
 export const getByIdLocadorService = async (id) => {
-    const locadorId = await Locador.findByPk(id, {
-        attributes: ["id", "nome_locador"]
-    })
-    return locadorId
+    return await Locador.findByPk(id);
 };
 export const updateLocadorService = async (id, dadosLocador) => {
     const updateLocador = await Locador.update(dadosLocador, {

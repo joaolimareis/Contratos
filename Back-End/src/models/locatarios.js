@@ -16,26 +16,26 @@ export default class Locatarios extends Model {
       allowNull: false
     },
     tel_locatario: {
-      type: DataTypes.STRING(14),
-      allowNull: false
-    },
+  type: DataTypes.STRING(20),
+  allowNull: false
+},
     rua_locatario: {
       type: DataTypes.STRING(150),
       allowNull: true
     },
     bairro_locatario: {
-      type: DataTypes.STRING(20),
-      allowNull: true
-    },
+  type: DataTypes.STRING(150),
+  allowNull: true
+},
     cep_locatario: {
       type: DataTypes.STRING(10),
       allowNull: true
     },
-    cpf_locatario: {
-      type: DataTypes.STRING(20),
-      allowNull: false,
-      unique: "locatarios_cpf_locatario_key"
-    },
+ cpf_locatario: {
+  type: DataTypes.STRING(20),
+  allowNull: false,
+  unique: "locatarios_cpf_locatario_key"
+},
     rg_locatario: {
       type: DataTypes.STRING(100),
       allowNull: true,
