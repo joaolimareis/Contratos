@@ -35,6 +35,3 @@ Modifiquei toda a estrutura para um ORM SEQUELIZE
 
 Utilizado para criação e gerenciamento do ambiente da aplicação, facilitando a configuração e execução do projeto em diferentes ambientes.
 
-### Swagger UI
-
-Utilizado para documentação da API e realização de testes diretamente pelo navegador.
