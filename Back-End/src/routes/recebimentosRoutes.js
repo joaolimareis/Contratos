@@ -6,31 +6,18 @@ import {
   getRecebimentoByIdController,
   updateRecebimentoController,
   deleteRecebimentoController,
-  gerarReciboController
+  gerarReciboController,
+  uploadComprovanteController,
+  getComprovanteUrlController,
+  removeComprovanteController
 } from "../controllers/recebimentosControllers.js";
-
 import validateRecebimentos from "../middlewares/recebimentoValidador.js";
 
 import multer from "multer";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { uploadComprovanteController } from "../controllers/recebimentosControllers.js";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../../uploads/comprovantes"));
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `comprovante-${req.params.id}-${uniqueSuffix}${ext}`);
-  },
-});
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
     const allowed = [".pdf", ".jpg", ".jpeg", ".png", ".webp"];
@@ -49,6 +36,11 @@ router.post(
   uploadComprovanteController
 );
 
+
+router.get(
+  "/recebimentos/:id/comprovante",
+  getComprovanteUrlController
+);
 /**
  * @swagger
  * tags:  
@@ -120,6 +112,22 @@ router.delete(
   "/recebimentos/:id",
   deleteRecebimentoController
 );
-
+router.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    const msg =
+      err.code === "LIMIT_FILE_SIZE"
+        ? "O arquivo deve ter no máximo 5 MB."
+        : err.message;
+    return res.status(400).json({ message: msg });
+  }
+  if (err?.message?.startsWith("Apenas arquivos")) {
+    return res.status(400).json({ message: err.message });
+  }
+  next(err);
+});
+router.delete(
+  "/recebimentos/:id/comprovante",
+  removeComprovanteController
+);
 
 export default router;

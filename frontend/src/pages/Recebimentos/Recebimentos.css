@@ -2,6 +2,10 @@
   /* herda o fundo do layout */
 }
 
+/* =========================================================
+   TABELA
+   ========================================================= */
+
 .recebimentos-table {
   width: 100%;
   border-collapse: collapse;
@@ -60,6 +64,11 @@
   border-color: #d1d5db;
 }
 
+.btn-table:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn-table.primary {
   background: var(--accent-bg);
   color: var(--accent);
@@ -80,8 +89,14 @@
   background: rgba(220, 38, 38, 0.18);
 }
 
-/* Modal */
-.modal-overlay {
+/* =========================================================
+   MODAL
+   Os seletores começam em ".recebimentos-page" de propósito:
+   telas diferentes usam as mesmas classes (modal-body, form-row...)
+   e, como o CSS do Vite é global, um arquivo pode sobrescrever o outro.
+   ========================================================= */
+
+.recebimentos-page .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(15, 20, 25, 0.45);
@@ -92,117 +107,184 @@
   padding: 1rem;
 }
 
-.modal-box {
+.recebimentos-page .modal-box {
   background: var(--card-bg);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-float);
   width: 100%;
-  max-width: 520px;
+  max-width: 680px;
   max-height: 90vh;
   overflow-y: auto;
 }
 
-.modal-header {
+.recebimentos-page .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;
+  padding: 1.4rem 2rem;
   border-bottom: 1px solid var(--border);
 }
 
-.modal-header h2 {
-  font-size: 1.15rem;
+.recebimentos-page .modal-header h2 {
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--text);
+  margin: 0;
 }
 
-.modal-close {
+.recebimentos-page .modal-close {
   background: none;
   border: none;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   line-height: 1;
   color: var(--text-muted);
   cursor: pointer;
   padding: 0.25rem;
 }
 
-.modal-close:hover {
+.recebimentos-page .modal-close:hover {
   color: var(--text);
 }
 
-.modal-body {
-  padding: 1.5rem;
+.recebimentos-page .modal-body {
+  display: block;
+  padding: 1.75rem 2rem;
 }
 
-.modal-footer {
+.recebimentos-page .modal-body > :last-child {
+  margin-bottom: 0;
+}
+
+.recebimentos-page .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  padding: 1rem 1.5rem 1.5rem;
+  padding: 1.1rem 2rem 1.4rem;
   border-top: 1px solid var(--border);
 }
 
-.form-group {
-  margin-bottom: 1.1rem;
+/* =========================================================
+   FORMULÁRIO
+   Cada linha tem duas colunas iguais; "Contrato" ocupa a linha toda.
+   Todos os campos têm 44px de altura.
+   ========================================================= */
+
+.recebimentos-page .form-group {
+  display: block;
+  width: auto;
+  min-width: 0;
+  flex: none;
+  margin: 0 0 1.4rem;
 }
 
-.form-group label {
+.recebimentos-page .form-group label {
   display: block;
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--text);
-  margin-bottom: 0.4rem;
+  margin: 0 0 0.5rem;
+  white-space: nowrap;
 }
 
-.form-group input,
-.form-group select {
+.recebimentos-page .form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1.5rem;
   width: 100%;
-  padding: 0.7rem 0.9rem;
+  margin: 0;
+}
+
+.recebimentos-page .form-group input,
+.recebimentos-page .form-group select {
+  display: block;
+  width: 100%;
+  height: 44px;
+  padding: 0 1rem;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: var(--input-bg);
-  font-size: 0.925rem;
+  background-color: var(--input-bg);
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.2;
   color: var(--text);
-  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.recebimentos-page .form-group input::placeholder {
+  color: #9ca3af;
+}
+
+.recebimentos-page .form-group input:focus,
+.recebimentos-page .form-group select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+.recebimentos-page .form-group input:disabled,
+.recebimentos-page .form-group select:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
 }
 
-/* ===== Input com prefixo R$ ===== */
-.input-with-prefix {
+/* Select com seta própria */
+.recebimentos-page .form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%236b7280' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px 8px;
+}
+
+/* Data */
+.recebimentos-page .form-group input[type="date"] {
+  min-width: 0;
+  padding-right: 0.75rem;
+}
+
+.recebimentos-page .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.recebimentos-page .form-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* =========================================================
+   INPUT COM PREFIXO "R$"
+   ========================================================= */
+
+.recebimentos-page .input-with-prefix {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
-  height: 42px;
+  height: 44px;
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
   background: var(--input-bg);
+  box-sizing: border-box;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.input-with-prefix:focus-within {
+.recebimentos-page .input-with-prefix:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
-.input-with-prefix .prefix {
+.recebimentos-page .input-with-prefix .prefix {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 12px;
-  height: 100%;
+  padding: 0 14px;
   background: #f3f4f6;
   color: #6b7280;
   font-weight: 500;
@@ -213,35 +295,54 @@
   user-select: none;
 }
 
-.input-with-prefix input {
+.recebimentos-page .form-group .input-with-prefix input {
   flex: 1;
   height: 100%;
+  min-width: 0;
+  padding: 0 14px;
   border: none !important;
+  border-radius: 0;
   outline: none !important;
   box-shadow: none !important;
   background: transparent;
-  padding: 0 12px;
-  font-size: 0.925rem;
+  font-size: 0.95rem;
   color: var(--text);
-  min-width: 0;
 }
 
-.input-with-prefix input:disabled {
+.recebimentos-page .form-group .input-with-prefix input:disabled {
   background: #f9fafb;
   color: #9ca3af;
   cursor: not-allowed;
 }
 
-/* Remove setinhas do input number */
-.input-with-prefix input::-webkit-outer-spin-button,
-.input-with-prefix input::-webkit-inner-spin-button {
+.recebimentos-page .input-with-prefix input::-webkit-outer-spin-button,
+.recebimentos-page .input-with-prefix input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-.input-with-prefix input[type="number"] {
+.recebimentos-page .input-with-prefix input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
+
+/* Telas estreitas: uma coluna só */
+@media (max-width: 560px) {
+  .recebimentos-page .form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .recebimentos-page .modal-header,
+  .recebimentos-page .modal-body,
+  .recebimentos-page .modal-footer {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+/* =========================================================
+   BOTÕES
+   ========================================================= */
 
 .btn {
   padding: 0.65rem 1.15rem;
@@ -277,6 +378,10 @@
   background: var(--page-bg);
   color: var(--text);
 }
+
+/* =========================================================
+   ALERTAS
+   ========================================================= */
 
 .alert {
   padding: 0.85rem 1rem;
@@ -314,7 +419,10 @@
   opacity: 1;
 }
 
-/* Botão principal do cabeçalho */
+/* =========================================================
+   CABEÇALHO DA PÁGINA
+   ========================================================= */
+
 .page-header-action {
   padding: 0.7rem 1.15rem;
   border: none;

@@ -12,6 +12,16 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  storage:
+    image: dxflrs/garage:v1.0.1   # confira a tag mais recente no Docker Hub
+    container_name: contratos-storage
+    ports:
+      - "3900:3900"
+    volumes:
+      - ./garage.toml:/etc/garage.toml
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
+    restart: unless-stopped
 
   backend:
     build:
@@ -19,6 +29,7 @@ services:
     container_name: contratos-api
     depends_on:
       - postgres
+      - storage
     ports:
       - "3001:3001"
     environment:
@@ -28,6 +39,14 @@ services:
       DB_USER: postgres
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: contratos
+      S3_ENDPOINT: http://storage:3900
+      S3_PUBLIC_ENDPOINT: http://localhost:3900
+      S3_REGION: garage
+      S3_BUCKET: contratos
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
 
 volumes:
   postgres_data:
+  garage_meta:
+  garage_data:

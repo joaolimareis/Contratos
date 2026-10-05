@@ -1,8 +1,5 @@
 import express from "express";
 import multer from "multer";
-import path from "node:path";
-import fs from "node:fs";
-import { fileURLToPath } from "node:url";
 import {
   createContratoController,
   getAllContratosController,
@@ -10,32 +7,14 @@ import {
   updateContratoController,
   deleteContratoController,
   uploadContratoPdfController,
-  removeContratoPdfController
+  removeContratoPdfController,
+  getContratoPdfUrlController
 } from "../controllers/contratosControllers.js";
 
 import validateContratos from "../middlewares/contratosValidador.js";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const uploadDir = path.join(__dirname, "..", "uploads", "contratos");
-
-// Cria a pasta se não existir
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `contrato-${req.params.id}-${unique}${path.extname(file.originalname)}`);
-  },
-});
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     if (file.mimetype !== "application/pdf") {
       return cb(new Error("Apenas arquivos PDF são permitidos."));
@@ -47,7 +26,19 @@ const upload = multer({
 
 const router = express.Router();
 
-
+router.post(
+  "/contratos/:id/upload",
+  upload.single("arquivo"),
+  uploadContratoPdfController
+);
+router.delete(
+  "/contratos/:id/upload",
+  removeContratoPdfController
+);
+router.get(
+  "/contratos/:id/pdf",
+  getContratoPdfUrlController
+);
 /**
  * @swagger
  * tags:

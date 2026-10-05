@@ -146,19 +146,20 @@ export const deleteContratoService = async (id) => {
 
   return contrato;
 };
-export const uploadContratoPdfService = async (id, caminhoArquivo) => {
+export const uploadContratoPdfService = async (id, key) => {
   const contrato = await Contratos.findByPk(id);
 
   if (!contrato) {
     return null;
   }
 
-  await contrato.update({
-    arquivo_pdf: caminhoArquivo,
-  });
+  const oldKey = contrato.arquivo_pdf;
 
-  return contrato;
+  await contrato.update({ arquivo_pdf: key });
+
+  return { contrato, oldKey };
 };
+
 export const removeContratoPdfService = async (id) => {
   const contrato = await Contratos.findByPk(id);
 
@@ -166,11 +167,11 @@ export const removeContratoPdfService = async (id) => {
     return null;
   }
 
-  await contrato.update({
-    arquivo_pdf: null,
-  });
+  const oldKey = contrato.arquivo_pdf;
 
-  return contrato;
+  await contrato.update({ arquivo_pdf: null });
+
+  return { contrato, oldKey };
 };
 
 export default {

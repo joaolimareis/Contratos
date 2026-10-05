@@ -47,8 +47,6 @@ function Contratos() {
   const [valor, setValor] = useState("");
   const [status, setStatus] = useState(true);
 
-  const API_BASE = api.defaults.baseURL || "http://localhost:3001/api";
-  const BACKEND_URL = API_BASE.replace(/\/api\/?$/, "");
 
   async function loadContratos() {
     setLoading(true);
@@ -80,7 +78,14 @@ function Contratos() {
       console.error("Erro ao carregar imóveis:", err);
     }
   }
-
+async function handleViewPdf(id) {
+  try {
+    const { data } = await api.get(`/contratos/${id}/pdf`);
+    window.open(data.url, "_blank", "noopener,noreferrer");
+  } catch (err) {
+    setError(err.response?.data?.message || "Erro ao abrir o PDF.");
+  }
+}
   useEffect(() => {
     loadContratos();
     loadLocatarios();
@@ -388,17 +393,12 @@ function Contratos() {
                           />
                         </label>
 
-                        {/* Ver PDF */}
-                        {item.arquivo_pdf && (
-                          <a
-                            className="btn-table"
-                            href={`${BACKEND_URL}${item.arquivo_pdf}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Ver PDF
-                          </a>
-                        )}
+                      {/* Ver PDF */}
+{item.arquivo_pdf && (
+  <button className="btn-table" onClick={() => handleViewPdf(item.id)}>
+    Ver PDF
+  </button>
+)}
 
                         {/* Remover PDF */}
                         {item.arquivo_pdf && (

@@ -2,27 +2,30 @@
   /* herda o page-bg do layout */
 }
 
+/* =========================================================
+   TABELA
+   ========================================================= */
 .imoveis-table {
   width: 100%;
   border-collapse: collapse;
 }
 
 .imoveis-table th {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text-muted);
-  padding: 0.85rem 1rem;
+  padding: 0.85rem 0.9rem;
   border-bottom: 1px solid var(--border);
   text-align: left;
   white-space: nowrap;
 }
 
 .imoveis-table td {
-  padding: 1rem;
+  padding: 0.95rem 0.9rem;
   border-bottom: 1px solid var(--border);
-  font-size: 0.925rem;
+  font-size: 0.9rem;
   color: var(--text);
   vertical-align: middle;
 }
@@ -35,17 +38,19 @@
   background: var(--page-bg);
 }
 
-/* Coluna de ações com largura fixa para não desalinh ar */
+/* Coluna de ações: cresce conforme os botões */
 .imoveis-table th:last-child,
 .imoveis-table td:last-child {
-  width: 160px;
+  width: 1%;
   min-width: 160px;
+  white-space: nowrap;
   text-align: right;
-  padding-right: 1.5rem;
+  padding-right: 1.4rem;
 }
 
 .imoveis-table .actions {
   display: inline-flex;
+  flex-wrap: nowrap;
   gap: 0.45rem;
   justify-content: flex-end;
   align-items: center;
@@ -80,274 +85,203 @@
   background: rgba(220, 38, 38, 0.18);
 }
 
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 20, 25, 0.45);
-  display: flex;
+/* Botões com mesma altura e alinhamento */
+.imoveis-table .btn-table {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
-  padding: 1rem;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
-.modal-box {
-  background: var(--card-bg);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-float);
-  width: 100%;
-  max-width: 480px;
-  max-height: 90vh;
-  overflow-y: auto;
+.imoveis-table .btn-table:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+/* =========================================================
+   MODAL E FORMULÁRIO (padrão alinhado ao contratos)
+   ========================================================= */
+.imoveis-page .modal-box {
+  max-width: 560px; /* um pouco menor que contratos (720px), adequado para imóvel */
 }
 
-.modal-header h2 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text);
+.imoveis-page .modal-header {
+  padding: 1.4rem 2rem;
 }
 
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
-  line-height: 1;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 0.25rem;
+.imoveis-page .modal-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
 }
 
-.modal-close:hover {
-  color: var(--text);
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem 1.5rem;
-  border-top: 1px solid var(--border);
-}
-
-.form-group {
-  margin-bottom: 1.1rem;
-}
-
-.form-group label {
+.imoveis-page .modal-body {
   display: block;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text);
-  margin-bottom: 0.4rem;
+  padding: 1.75rem 2rem;
 }
 
-.form-group input,
-.form-group select {
+.imoveis-page .modal-body > :last-child {
+  margin-bottom: 0;
+}
+
+.imoveis-page .modal-footer {
+  padding: 1.1rem 2rem 1.4rem;
+}
+
+.imoveis-page .form-group {
+  display: block;
+  width: auto;
+  min-width: 0;
+  flex: none;
+  margin: 0 0 1.4rem;
+}
+
+.imoveis-page .form-group label {
+  display: block;
+  margin: 0 0 0.5rem;
+  white-space: nowrap;
+}
+
+.imoveis-page .form-row {
+  display: grid;
+  grid-template-columns: 1fr 120px; /* endereço + número (padrão original do imóveis) */
+  gap: 0 1.5rem;
   width: 100%;
-  padding: 0.7rem 0.9rem;
+  margin: 0;
+}
+
+.imoveis-page .form-group input:not([type="checkbox"]),
+.imoveis-page .form-group select {
+  display: block;
+  width: 100%;
+  height: 44px;
+  padding: 0 1rem;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: var(--input-bg);
-  font-size: 0.925rem;
+  background-color: var(--input-bg);
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.2;
   color: var(--text);
-  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.imoveis-page .form-group input::placeholder {
+  color: #9ca3af;
+}
+
+.imoveis-page .form-group input:not([type="checkbox"]):focus,
+.imoveis-page .form-group select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
-.form-group input.has-error,
-.form-group select.has-error {
+.imoveis-page .form-group input.has-error:not([type="checkbox"]),
+.imoveis-page .form-group select.has-error {
   border-color: var(--danger);
 }
 
-.form-error-msg {
-  display: block;
-  color: var(--danger);
-  font-size: 0.8rem;
-  margin-top: 0.3rem;
+.imoveis-page .form-group input:not([type="checkbox"]):disabled,
+.imoveis-page .form-group select:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 120px;
-  gap: 1rem;
+/* Select com seta própria */
+.imoveis-page .form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%236b7280' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px 8px;
 }
 
-.form-switch {
+.imoveis-page .form-error-msg {
+  margin-top: 0.4rem;
+}
+
+/* Interruptor (mesmo padrão do contratos) */
+.imoveis-page .form-switch {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
   margin-top: 0.25rem;
 }
 
-.form-switch input[type="checkbox"] {
+.imoveis-page .form-switch input[type="checkbox"] {
   width: 40px;
   height: 22px;
+  flex-shrink: 0;
   appearance: none;
+  -webkit-appearance: none;
   background: var(--border);
+  border: none;
   border-radius: 20px;
+  padding: 0;
   position: relative;
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
-.form-switch input[type="checkbox"]::before {
+.imoveis-page .form-switch input[type="checkbox"]::before {
   content: "";
   position: absolute;
+  top: 2px;
+  left: 2px;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: white;
-  top: 2px;
-  left: 2px;
-  transition: transform 0.2s ease;
+  background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
 }
 
-.form-switch input[type="checkbox"]:checked {
+.imoveis-page .form-switch input[type="checkbox"]:checked {
   background: var(--accent);
 }
 
-.form-switch input[type="checkbox"]:checked::before {
+.imoveis-page .form-switch input[type="checkbox"]:checked::before {
   transform: translateX(18px);
 }
 
-.form-switch label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
+.imoveis-page .form-switch input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-.btn {
-  padding: 0.65rem 1.15rem;
-  border-radius: var(--radius);
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  border: none;
-  transition: background 0.15s ease, opacity 0.15s ease;
-}
-
-.btn:disabled {
-  opacity: 0.65;
+.imoveis-page .form-switch input[type="checkbox"]:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-.btn-primary {
-  background: var(--accent);
-  color: #fff;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--accent-hover);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--text-muted);
-  border: 1px solid var(--border);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: var(--page-bg);
-  color: var(--text);
-}
-
-.alert {
-  padding: 0.85rem 1rem;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  margin-bottom: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.alert-error {
-  background: var(--danger-bg);
-  color: var(--danger);
-  border: 1px solid rgba(220, 38, 38, 0.2);
-}
-
-.alert-success {
-  background: var(--success-bg);
-  color: var(--success);
-  border: 1px solid rgba(22, 163, 74, 0.2);
-}
-
-.alert button {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  color: inherit;
-  opacity: 0.7;
-}
-
-.alert button:hover {
-  opacity: 1;
-}
-
-/* Botão principal do cabeçalho */
-.page-header-action {
-  padding: 0.7rem 1.15rem;
-  border: none;
-  border-radius: var(--radius);
-  background: var(--accent);
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.2s ease;
-}
-
-.page-header-action:hover {
-  background: var(--accent-hover);
-}
-
-.page-header-action:active {
-  transform: translateY(1px);
-}
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 2.25rem;   /* espaço confortável entre cabeçalho e conteúdo */
-}
-
-.page-header h1 {
-  font-size: 1.7rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text);
-  margin: 0 0 0.2rem 0;
-}
-
-.page-header p {
+.imoveis-page .form-switch label {
   margin: 0;
-  margin-top: 0.45rem;      /* espaço entre título e subtítulo */
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  line-height: 1.4;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: normal;
+}
+
+/* Telas estreitas: uma coluna só */
+@media (max-width: 640px) {
+  .imoveis-page .form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .imoveis-page .modal-header,
+  .imoveis-page .modal-body,
+  .imoveis-page .modal-footer {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
 }

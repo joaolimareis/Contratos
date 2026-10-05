@@ -2,6 +2,19 @@ import { useState, useEffect } from "react";
 import api from "../../services/api";
 import "./Recebimentos.css";
 
+// Monta "AAAA-MM-DD" usando o dia do contrato no mês/ano informado.
+// Se o mês for mais curto (ex.: dia 31 em abril), usa o último dia do mês.
+function montarVencimento(contrato, ano, mes) {
+  const base = String(contrato.data_inicio || contrato.data_fim || "").slice(0, 10);
+  const dia = Number(base.slice(8, 10));
+  if (!dia) return "";
+
+  const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+  const d = Math.min(dia, ultimoDia);
+
+  return `${ano}-${String(mes + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
 function formatDate(value) {
   if (!value) return "—";
 
@@ -114,6 +127,44 @@ function Recebimentos() {
     resetForm();
   }
 
+  // ===== SUGESTÃO AUTOMÁTICA AO ESCOLHER O CONTRATO =====
+  // Começa no mês atual e pula os meses que já têm recebimento deste contrato.
+  function sugerirVencimento(contrato) {
+    const hoje = new Date();
+
+    // meses já lançados para este contrato (formato "2026-10")
+    const jaLancados = new Set(
+      recebimentos
+        .filter((r) => String(r.contrato_id) === String(contrato.id))
+        .map((r) => String(r.data_vencimento).slice(0, 7))
+    );
+
+    for (let i = 0; i < 24; i++) {
+      const data = new Date(hoje.getFullYear(), hoje.getMonth() + i, 1);
+      const ano = data.getFullYear();
+      const mes = data.getMonth();
+      const chave = `${ano}-${String(mes + 1).padStart(2, "0")}`;
+
+      if (!jaLancados.has(chave)) {
+        return montarVencimento(contrato, ano, mes);
+      }
+    }
+
+    return "";
+  }
+
+  function handleContratoChange(value) {
+    setContratoId(value);
+
+    if (isEditing || !value) return; // só preenche ao criar
+
+    const contrato = contratos.find((c) => String(c.id) === String(value));
+    if (!contrato) return;
+
+    setDataVencimento(sugerirVencimento(contrato));
+    setValorCobrado(contrato.valor ?? "");
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setFormLoading(true);
@@ -159,6 +210,54 @@ function Recebimentos() {
     }
   }
 
+  // ===== HELPERS DE EXIBIÇÃO =====
+  function getLocatarioNome(contratoId) {
+    const c = contratos.find((x) => String(x.id) === String(contratoId));
+    return c?.locatario?.nome_locatario || c?.nome_locatario || "—";
+  }
+
+  function getImovelLabel(contratoId) {
+    const c = contratos.find((x) => String(x.id) === String(contratoId));
+    const im = c?.imovel;
+    if (!im) return "—";
+
+    const endereco = String(im.endereco ?? "").trim();
+    return im.numero ? `${endereco}, ${im.numero}` : endereco || "—";
+  }
+
+  function getContratoOptionLabel(c) {
+    const nome = c.locatario?.nome_locatario || c.nome_locatario || "Sem locatário";
+    const im = c.imovel;
+    const imovel = im
+      ? `${String(im.endereco ?? "").trim()}${im.numero ? `, ${im.numero}` : ""}`
+      : "";
+
+    return imovel ? `${nome} — ${imovel}` : nome;
+  }
+
+  // Nome do arquivo do recibo: "Recibo 4 - Nome do Locatário.pdf"
+  function nomeArquivoRecibo(item) {
+    const numero = item.numero_recibo || item.id;
+    const nome =
+      item.contrato?.locatario?.nome_locatario || getLocatarioNome(item.contrato_id);
+
+    const base =
+      nome && nome !== "—" ? `Recibo ${numero} - ${nome}` : `Recibo ${numero}`;
+
+    return `${base
+      .replace(/[\\/:*?"<>|]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()}.pdf`;
+  }
+
+  function statusBadge(status) {
+    const s = String(status || "").toLowerCase();
+    if (s === "pago") return "badge-success";
+    if (s === "atrasado") return "badge-danger";
+    if (s === "a_vencer" || s === "pendente") return "badge-warning";
+    return "badge-neutral";
+  }
+
   // ===== GERAR RECIBO (PDF) =====
   async function handleGerarRecibo(item) {
     setReciboLoading(item.id);
@@ -176,9 +275,7 @@ function Recebimentos() {
       link.href = url;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-
-      const numero = item.numero_recibo || item.id;
-      link.download = `recibo-${numero}.pdf`;
+      link.download = nomeArquivoRecibo(item);
 
       document.body.appendChild(link);
       link.click();
@@ -204,6 +301,11 @@ function Recebimentos() {
   // ===== UPLOAD COMPROVANTE =====
   async function handleUploadComprovante(item, file) {
     if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("O comprovante deve ter no máximo 5 MB.");
+      return;
+    }
 
     setComprovanteLoading(item.id);
     setError("");
@@ -231,23 +333,37 @@ function Recebimentos() {
     }
   }
 
-  function getContratoLabel(contratoId) {
-    const c = contratos.find((x) => String(x.id) === String(contratoId));
-    if (!c) return `Contrato #${contratoId}`;
-    return `Contrato #${c.id}`;
+  // ===== VER COMPROVANTE =====
+  async function handleViewComprovante(id) {
+    try {
+      const { data } = await api.get(`/recebimentos/${id}/comprovante`);
+      window.open(data.url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      setError(err.response?.data?.message || "Erro ao abrir o comprovante.");
+    }
   }
 
-  function getLocatarioNome(contratoId) {
-    const c = contratos.find((x) => String(x.id) === String(contratoId));
-    return c?.locatario?.nome_locatario || c?.nome_locatario || "—";
-  }
+  // ===== REMOVER COMPROVANTE =====
+  async function handleRemoveComprovante(id) {
+    if (!window.confirm("Tem certeza que deseja remover o comprovante?")) return;
 
-  function statusBadge(status) {
-    const s = String(status || "").toLowerCase();
-    if (s === "pago") return "badge-success";
-    if (s === "atrasado") return "badge-danger";
-    if (s === "a_vencer" || s === "pendente") return "badge-warning";
-    return "badge-neutral";
+    setComprovanteLoading(id);
+    setError("");
+    setSuccess("");
+
+    try {
+      await api.delete(`/recebimentos/${id}/comprovante`);
+
+      setRecebimentos((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, comprovante: null } : r))
+      );
+
+      setSuccess("Comprovante removido com sucesso.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Erro ao remover o comprovante.");
+    } finally {
+      setComprovanteLoading(null);
+    }
   }
 
   return (
@@ -311,7 +427,7 @@ function Recebimentos() {
               <thead>
                 <tr>
                   <th style={{ paddingLeft: "1.4rem" }}>Nº Recibo</th>
-                  <th>Contrato</th>
+                  <th>Imóvel</th>
                   <th>Locatário</th>
                   <th>Vencimento</th>
                   <th>Pagamento</th>
@@ -327,7 +443,7 @@ function Recebimentos() {
                     <td style={{ paddingLeft: "1.4rem" }}>
                       {item.numero_recibo || item.n_recibo || "—"}
                     </td>
-                    <td>{getContratoLabel(item.contrato_id)}</td>
+                    <td>{getImovelLabel(item.contrato_id)}</td>
                     <td>{getLocatarioNome(item.contrato_id)}</td>
                     <td>{formatDate(item.data_vencimento)}</td>
                     <td>{formatDate(item.data_pagamento)}</td>
@@ -350,7 +466,7 @@ function Recebimentos() {
                           {reciboLoading === item.id ? "Gerando..." : "Recibo"}
                         </button>
 
-                        {/* Botão Comprovante (só se estiver pago) */}
+                        {/* Comprovante (só se estiver pago) */}
                         {String(item.status).toLowerCase() === "pago" && (
                           <>
                             <input
@@ -366,7 +482,11 @@ function Recebimentos() {
                             />
                             <button
                               className="btn-table"
-                              title={item.comprovante ? "Trocar comprovante" : "Adicionar comprovante"}
+                              title={
+                                item.comprovante
+                                  ? "Trocar comprovante"
+                                  : "Adicionar comprovante"
+                              }
                               onClick={() =>
                                 document.getElementById(`comprovante-${item.id}`).click()
                               }
@@ -380,16 +500,23 @@ function Recebimentos() {
                             </button>
 
                             {item.comprovante && (
-                              <a
-                                href={item.comprovante}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn-table"
-                                title="Ver comprovante"
-                                style={{ textDecoration: "none" }}
-                              >
-                                Ver
-                              </a>
+                              <>
+                                <button
+                                  className="btn-table"
+                                  title="Ver comprovante"
+                                  onClick={() => handleViewComprovante(item.id)}
+                                >
+                                  Ver
+                                </button>
+                                <button
+                                  className="btn-table danger"
+                                  title="Remover comprovante"
+                                  disabled={comprovanteLoading === item.id}
+                                  onClick={() => handleRemoveComprovante(item.id)}
+                                >
+                                  Remover
+                                </button>
+                              </>
                             )}
                           </>
                         )}
@@ -429,14 +556,14 @@ function Recebimentos() {
                   <label>Contrato *</label>
                   <select
                     value={contrato_id}
-                    onChange={(e) => setContratoId(e.target.value)}
+                    onChange={(e) => handleContratoChange(e.target.value)}
                     required
                     disabled={formLoading}
                   >
                     <option value="">Selecione o contrato</option>
                     {contratos.map((c) => (
                       <option key={c.id} value={c.id}>
-                        Contrato #{c.id}
+                        {getContratoOptionLabel(c)}
                       </option>
                     ))}
                   </select>

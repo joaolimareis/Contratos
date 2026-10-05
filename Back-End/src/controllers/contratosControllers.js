@@ -7,7 +7,8 @@ import {
   uploadContratoPdfService,
   removeContratoPdfService
 } from "../service/contratosService.js";
-
+import { randomUUID } from "node:crypto";
+import { uploadFile, deleteFile, getFileUrl } from "../utils/storage.js";
 import handleResponse from "../utils/handleError.js";
 
 
@@ -182,7 +183,7 @@ export const deleteContratoController = async (req, res, next) => {
       );
 
     }
-
+    await deleteFile(deletedContrato.arquivo_pdf).catch(() => {});
 
     return handleResponse(
       res,
@@ -207,19 +208,24 @@ export const uploadContratoPdfController = async (req, res, next) => {
       return res.status(400).json({ message: "Nenhum arquivo PDF enviado." });
     }
 
-    // Caminho relativo que será salvo no banco
-    const caminho = `/uploads/contratos/${req.file.filename}`;
+    // chave única no bucket
+    const key = `contratos/${id}/${randomUUID()}.pdf`;
+    await uploadFile(key, req.file.buffer, req.file.mimetype);
 
-    const contrato = await uploadContratoPdfService(id, caminho);
+    const result = await uploadContratoPdfService(id, key);
 
-    if (!contrato) {
+    if (!result) {
+      await deleteFile(key); // contrato não existe: não deixa arquivo órfão
       return res.status(404).json({ message: "Contrato não encontrado." });
     }
 
+    // apaga o PDF anterior, se havia
+    await deleteFile(result.oldKey).catch(() => {});
+
     return res.status(200).json({
       message: "PDF enviado com sucesso.",
-      arquivo_pdf: caminho,
-      data: contrato,
+      arquivo_pdf: key,
+      data: result.contrato,
     });
   } catch (error) {
     next(error);
@@ -227,18 +233,32 @@ export const uploadContratoPdfController = async (req, res, next) => {
 };
 export const removeContratoPdfController = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const result = await removeContratoPdfService(req.params.id);
 
-    const contrato = await removeContratoPdfService(id);
-
-    if (!contrato) {
+    if (!result) {
       return res.status(404).json({ message: "Contrato não encontrado." });
     }
 
+    await deleteFile(result.oldKey).catch(() => {});
+
     return res.status(200).json({
       message: "PDF removido com sucesso.",
-      data: contrato,
+      data: result.contrato,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+export const getContratoPdfUrlController = async (req, res, next) => {
+  try {
+    const contrato = await getContratoByIdService(req.params.id);
+
+    if (!contrato?.arquivo_pdf) {
+      return res.status(404).json({ message: "PDF não encontrado." });
+    }
+
+    const url = await getFileUrl(contrato.arquivo_pdf);
+    return res.json({ url });
   } catch (error) {
     next(error);
   }
@@ -248,5 +268,8 @@ export default {
   getAllContratosController,
   getContratoByIdController,
   updateContratoController,
-  deleteContratoController
+  deleteContratoController,
+  uploadContratoPdfController,
+  removeContratoPdfController,
+  getContratoPdfUrlController
 };
